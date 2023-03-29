@@ -442,7 +442,7 @@ int main(int argc, char *argv[])
     char command[15][20];
     char input[100];
 
-    char allEvents[200][4][15];
+    char allEvents[200][5][15];
     char nameinvolved[200][10][20]; // store who involved the event
     int eventIndex = 0;
     // ID: for reject multiple people events
