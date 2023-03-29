@@ -579,11 +579,11 @@ int main(int argc, char *argv[])
                 addEvent(allEvents, &eventIndex, command[0], command[2], command[3], command[4], idString);
 
                 // add to name involved array
-                strcpy(nameinvolved[0], command[1]);
+                strcpy(nameinvolved[eventIndex][0], command[1]);
                 j = 5;
                 while (strcmp(command[j], "") != 0)
                 {
-                    strcpy(nameinvolved[j - 4], command[j]);
+                    strcpy(nameinvolved[eventIndex][j - 4], command[j]);
                     j++;
                 }
                 /*
