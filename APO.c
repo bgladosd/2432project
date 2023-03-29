@@ -4,9 +4,12 @@
 #include <string.h>
 #include <ctype.h>
 
-void upFirstLetter(char *str)
+char *upFirstLetter(char *str)
 {
+    char *newStr = malloc(sizeof(char) * (strlen(str) + 1));
     newStr[0] = toupper(str[0]);
+    strcpy(newStr + 1, str + 1);
+    return newStr;
 }
 
 int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const char *time, float duration)
