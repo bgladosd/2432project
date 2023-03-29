@@ -52,6 +52,13 @@ int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const 
             {
                 return 0;
             }
+            // not (input end <= existing start or input start >= existing end)
+            // this may better
+            /*
+            if (!(inputTime + (int)(duration * 100) <= existingTime || inputTime >= existingTime + (int)(existing Duration * 100))) {
+                return 0;
+            }
+            */
         }
     }
     return 1;
@@ -435,7 +442,8 @@ int main(int argc, char *argv[])
     char command[15][20];
     char input[100];
 
-    Event allEvents[200];
+    char allEvents[200][4][15];
+    char nameinvolved[200][10][20]; // store who involved the event
     int eventIndex = 0;
     // ID: for reject multiple people events
     char appointmentID[200][4];
@@ -519,9 +527,7 @@ int main(int argc, char *argv[])
             int isValid = 1;
             // check name exist and name index
             int child_index = checkName(command[1],name);
-            if (child_index > -1) {
-                strcpy(involved[0], command[1]);
-            } else {
+            if (child_index == -1) {
                 isValid = 0;
                 printf("No such name %s!\n", command[1]);
             }
@@ -531,7 +537,7 @@ int main(int argc, char *argv[])
             {
                 child_index = checkName(command[1],name);
                 if (child_index > -1) {
-                    strcpy(involved[j - 4], command[j]);
+                    strcpy(nameinvolved[j - 4], command[j]);
                 } else {
                     isValid = 0;
                     printf("No such name %s!\n", command[j]);
@@ -567,16 +573,30 @@ int main(int argc, char *argv[])
             }
 
             if (isValid == 1) {
+                char idString[4];
+                sprintf(idString,"%d", eventIndex);
+                // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+                addEvent(allEvents, &eventIndex, command[0], command[2], command[3], command[4], idString);
+
+                // add to name involved array
+                strcpy(nameinvolved[0], command[1]);
+                j = 5;
+                while (strcmp(command[j], "") != 0)
+                {
+                    strcpy(nameinvolved[j - 4], command[j]);
+                    j++;
+                }
+                /*
                 strcpy(event[eventIndex].type, command[0]);
                 for (j = 0, j < 10; j++) {
-                    strcpy(event[eventIndex].name[i], involved[i]);
+                    strcpy(event[eventIndex].name[i], nameinvolved[i]);
                 }
                 strcpy(event[eventIndex].data, command[2]);
                 event[eventIndex].time = atoi(command[3]);
                 event[eventIndex].duration = atof(command[4]);
                 eventIndex++;
+                */
             }
-
         }
 
 
