@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
             for (j = 6; j <= 7; j++)
                 tempD[j - 6] = command[2][j];
             int tempYear = atoi(tempY);
-            b int tempMonth = atoi(tempM);
+            int tempMonth = atoi(tempM);
             int tempDay = atoi(tempD);
             if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay))
             {
@@ -645,7 +645,6 @@ int main(int argc, char *argv[])
                 sprintf(idString, "%d", eventIndex);
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
                 addEvent(allEvents, &eventIndex, command[0], command[2], command[3], command[4], idString);
-
                 // add to name involved array
                 strcpy(nameinvolved[eventIndex][0], command[1]);
                 j = 5;
@@ -680,7 +679,6 @@ int main(int argc, char *argv[])
 
                 for (i = 0; i < j; i++)
                 {
-                    printf("run run run\n");
                     for (child_index = 0; child_index < userNum; child_index++)
                     {
                         if (strcmp(involved[i], name[child_index]) == 0)
