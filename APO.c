@@ -431,7 +431,8 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printEvent done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-                        else if (strcmp(command[0], "printSchd") == 0)
+                        //delete later
+                        else if (strcmp(command[0], "printSchdasdasdasd") == 0)
                         { // printing recorded events
                             // printf("debug: check FCFS \n");
                             if (strcmp(command[1], "FCFS") == 0)
@@ -443,7 +444,7 @@ int main(int argc, char *argv[])
                         }
 
                         // bgladosd alternative try on the flow CHILD
-                        else if (strcmp(command[0], "printSchdTemp") == 0)
+                        else if (strcmp(command[0], "printSchd") == 0)
                         { // printing recorded events
                             // printf("debug: check FCFS \n");
                             // if (strcmp(command[1], "FCFS") == 0)
@@ -823,8 +824,8 @@ int main(int argc, char *argv[])
             //     printf("Reading by parent --> child %d: %s \n", i, buf);
             // }
         }
-
-        else if (strcmp(command[0], "printSchd") == 0)
+        //delete later old
+        else if (strcmp(command[0], "printSchdzxc") == 0)
         {
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
@@ -849,41 +850,17 @@ int main(int argc, char *argv[])
             //     read buf from child (child will write sth to parent after search and reject the id)
         }
 
-        // bgladosd alternative try on the flow Parent
-        else if (strcmp(command[0], "printSchdTemp") == 0)
-        {
-            // printf("debug: send printSchd to child\n");
-            for (i = 0; i < userNum; i++)
-            {
-                if (strcmp(command[1], "FCFS") == 0)
-                {
-                    strcpy(buf, "printSchdTemp FCFS");
-                }
-
-                write(fd[i][0][1], buf, strlen(buf));
-                buf_n = read(fd[i][1][0], buf, 100);
-                buf[buf_n] = '\0';
-
-                // buf read from child should be id of reject event
-                // strcat the id
-            }
-            // after all child successfully make their schedule and write reject id to parent,
-            // strtok the string of id to many id
-            // while (!=the end of token)
-            //  for each child
-            //     send id to child
-            //     read buf from child (child will write sth to parent after search and reject the id)
-        }
         // Cyrus temp testing
-        else if (strcmp(command[0], "printSchdFCFS") == 0)
+        else if (strcmp(command[0], "printSchd") == 0)
         {
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
             {
+                strcpy(buf, "printSchd");
                 if (strcmp(command[1], "FCFS") == 0)
                 {
-                    strcpy(buf, "printSchdTemp FCFS");
+                    strcpy(buf, "printSchd FCFS");
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
