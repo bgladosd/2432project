@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
         // ----------------new implement
         // add event
         else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0) {
-            char involved[10][20]; // store who involved the event
+            //char involved[10][20]; // store who involved the event
 
             // check data valid or not
             int isValid = 1;
@@ -572,7 +572,7 @@ int main(int argc, char *argv[])
             {
                 child_index = checkName(command[1],name,userNum);
                 if (child_index > -1) {
-                    strcpy(nameinvolved[j - 4], command[j]);
+                    strcpy(nameinvolved[eventIndex][j - 4], command[j]);
                 } else {
                     isValid = 0;
                     printf("No such name %s!\n", command[j]);
