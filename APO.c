@@ -187,7 +187,7 @@ void setEmptySlots(char Slot[][5][5][15], int num_of_day){
 
 
 bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
-    printf("---->Child %d: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
+    printf("---->Child %d try: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
     int i,j,k,p;
     int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
 
@@ -228,6 +228,7 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
 }
 
 void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    printf("---->Child %d add: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
     int i,j,k,p;
     int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
 
@@ -255,6 +256,8 @@ void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYe
         
         if(found==1)break;
     }
+
+    printf("---->Child %d end: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
 
 }
 
@@ -500,7 +503,7 @@ int main(int argc, char *argv[])
             char FCFS[200][5][15];
             char rejectID[200][4];
             char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1][5][5][15];
-            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1);
+            
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -578,11 +581,13 @@ int main(int argc, char *argv[])
                             // }
                             strcpy(message, "Starting PrintSchdTemp \n");
                             write(fd[i][1][1], message, sizeof(message));
+                            //clear slots before use
+                            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1);
 
                             int EventPointer = 0;
                             while (1)
                             {
-
+                                
                                 bool childHaveEvent = false;
                                 // child printSCHD confirmed and START
                                 // read once/////////////////////////////////////////////
@@ -610,15 +615,14 @@ int main(int argc, char *argv[])
                                 }
                                 // check if it is avaiable
 
-                                //if(strlen(message)==)
-
+                                printf("--->kk debug: %d : %s \n", atoi(message),allEvents[EventPointer][4]);
 
                                 if (strcmp(allEvents[EventPointer][4], message) == 0)
                                 {
                                     // have that event, check if it is available
                                     //tryTimeSlot
-                                    childHaveEvent = tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
-                                    if(childHaveEvent)strcpy(message, "ok");
+                                    childHaveEvent = true;
+                                    if(tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))strcpy(message, "ok");
                                     // if not ok
                                     else strcpy(message, "no");
                                     // say no
@@ -644,6 +648,7 @@ int main(int argc, char *argv[])
                                 {
                                     // passed, log it to Calender
                                     addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                    
                                 }
                                 else if (strcmp("pass", message))
                                 {
@@ -652,11 +657,12 @@ int main(int argc, char *argv[])
                                     {
                                         // add this to rejected list
                                         strcpy(rejectID[rejectCount++],allEvents[EventPointer][4]);
+                                        
                                     }
                                 }
                                 strcpy(message, name[i]);
                                 write(fd[i][1][1], message, sizeof(message));
-                                EventPointer++;
+                                if(childHaveEvent)EventPointer++;
                                 // finished one event on parent list,
                                 // start listening
                             }
@@ -750,7 +756,16 @@ int main(int argc, char *argv[])
         if (appointmentID_C < 10)
         {
             appointmentID_C++;
+            if(appointmentID_C==10){
+                appointmentID_C=0;
+                appointmentID_B++;
+            }
+            if(appointmentID_B==10){
+                appointmentID_B=0;
+                appointmentID_A++;
+            }
         }
+        /*
         else if (appointmentID_B < 10)
         {
             appointmentID_B++;
@@ -762,7 +777,7 @@ int main(int argc, char *argv[])
             appointmentID_B = 0;
             appointmentID_A++;
         }
-
+        */
         // clear command before input
         for (i = 0; i <= 14; i++)
         {
