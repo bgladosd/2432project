@@ -944,6 +944,13 @@ int main(int argc, char *argv[])
                     strcpy(buf, "fail");
                 }
             }
+
+            //all process checked send End to child
+            strcpy(buf, "end");
+            for (i = 0; i < userNum; i++)
+            {
+                write(fd[i][0][1], buf, strlen(buf));
+            }
         }
     }
 
