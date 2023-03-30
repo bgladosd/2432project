@@ -613,16 +613,16 @@ int main(int argc, char *argv[])
             for (j = 0; j <= 3; j++)
                 tempY[j] = command[2][j];
             for (j = 4; j <= 5; j++)
-                tempM[j] = command[2][j + 4];
+                tempM[j - 4] = command[2][j];
             for (j = 6; j <= 7; j++)
-                tempD[j] = command[2][j + 6];
+                tempD[j - 6] = command[2][j];
             int tempYear = atoi(tempY);
             int tempMonth = atoi(tempM);
             int tempDay = atoi(tempD);
             if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay))
             {
                 isValid = 0;
-                printf("Date %d is out of the range.\n", command[2]);
+                printf("Date %s is out of the range.\n", command[2]);
             }
             // check start time
             if (!(strcmp(command[3], "1800") == 0 || strcmp(command[3], "1900") == 0 || strcmp(command[3], "2000") == 0 || strcmp(command[3], "2100") == 0 || strcmp(command[3], "2200") == 0))
