@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printEvent done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-                        //delete later
+                        // delete later
                         else if (strcmp(command[0], "printSchdasdasdasd") == 0)
                         { // printing recorded events
                             // printf("debug: check FCFS \n");
@@ -463,6 +463,7 @@ int main(int argc, char *argv[])
                                 bool childHaveEvent = false;
                                 // child printSCHD confirmed and START
                                 // read once
+
                                 memset(message, 0, sizeof(message));
                                 n = read(fd[i][0][0], message, sizeof(message));
                                 if (n <= 0)
@@ -490,6 +491,8 @@ int main(int argc, char *argv[])
                                     // have that event, check if it is available
                                     childHaveEvent = true;
                                     strcpy(message, "ok");
+                                    // if not ok
+                                    // say no
                                 }
                                 else
                                 {
@@ -505,6 +508,7 @@ int main(int argc, char *argv[])
                                 if (n <= 0)
                                     break; // EOF or error
                                 message[n] = '\0';
+                                printf("child received %s \n", message);
 
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
@@ -824,7 +828,7 @@ int main(int argc, char *argv[])
             //     printf("Reading by parent --> child %d: %s \n", i, buf);
             // }
         }
-        //delete later old
+        // delete later old
         else if (strcmp(command[0], "printSchdzxc") == 0)
         {
             // printf("debug: send printSchd to child\n");
@@ -919,13 +923,18 @@ int main(int argc, char *argv[])
                     // Case of any child fail to join current event
                     strcpy(buf, "fail");
                 }
-                write(fd[askingChild][0][1], buf, strlen(buf));
+                printf("parent writed pass or fail \n");
+                for (i = 0; i < userNum; i++)
+                {
+                    write(fd[i][0][1], buf, strlen(buf));
+                }
+                
             }
-
-            //all process checked send End to child
+            // all process checked send End to child
             strcpy(buf, "end");
             for (i = 0; i < userNum; i++)
             {
+                printf("the end \n");
                 write(fd[i][0][1], buf, strlen(buf));
             }
         }
