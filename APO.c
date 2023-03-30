@@ -4,7 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
-typedef struct {
+typedef struct
+{
     char type[15];
     char name[10][20];
     char date[9];
@@ -12,38 +13,39 @@ typedef struct {
     float duration;
 } Event;
 
-void sortEventByPriority(char myEvents[][5][15], int eventCount) {
+void sortEventByPriority(char myEvents[][5][15], int eventCount)
+{
     int arrayLength = eventCount;
     int i, j;
-    for (i = 0; i < arrayLength -1; i++) {
-        for (j = 0; j < arrayLength - i -1; j++) {
-            if (checkPriority(myEvents[j][0]) > checkPriority(myEvents[j + 1][0])) {
+    for (i = 0; i < arrayLength - 1; i++)
+    {
+        for (j = 0; j < arrayLength - i - 1; j++)
+        {
+            if (checkPriority(myEvents[j][0]) > checkPriority(myEvents[j + 1][0]))
+            {
                 char temp[15];
-                strcpy(temp,myEvents[j][0]);
-                strcpy(myEvents[j][0],myEvents[j + 1][0]);
-                strcpy(myEvents[j + 1][0],temp);
+                strcpy(temp, myEvents[j][0]);
+                strcpy(myEvents[j][0], myEvents[j + 1][0]);
+                strcpy(myEvents[j + 1][0], temp);
 
-                strcpy(temp,myEvents[j][1]);
-                strcpy(myEvents[j][1],myEvents[j + 1][1]);
-                strcpy(myEvents[j + 1][1],temp);
+                strcpy(temp, myEvents[j][1]);
+                strcpy(myEvents[j][1], myEvents[j + 1][1]);
+                strcpy(myEvents[j + 1][1], temp);
 
-                strcpy(temp,myEvents[j][2]);
-                strcpy(myEvents[j][2],myEvents[j + 1][2]);
-                strcpy(myEvents[j + 1][2],temp);
+                strcpy(temp, myEvents[j][2]);
+                strcpy(myEvents[j][2], myEvents[j + 1][2]);
+                strcpy(myEvents[j + 1][2], temp);
 
-                strcpy(temp,myEvents[j][3]);
-                strcpy(myEvents[j][0],myEvents[j + 1][3]);
-                strcpy(myEvents[j + 1][3],temp);
+                strcpy(temp, myEvents[j][3]);
+                strcpy(myEvents[j][0], myEvents[j + 1][3]);
+                strcpy(myEvents[j + 1][3], temp);
 
-                strcpy(temp,myEvents[j][4]);
-                strcpy(myEvents[j][4],myEvents[j + 1][4]);
-                strcpy(myEvents[j + 1][4],temp);
+                strcpy(temp, myEvents[j][4]);
+                strcpy(myEvents[j][4], myEvents[j + 1][4]);
+                strcpy(myEvents[j + 1][4], temp);
             }
-
         }
-
     }
-
 }
 
 char *upFirstLetter(char *str)
@@ -54,7 +56,8 @@ char *upFirstLetter(char *str)
     return newStr;
 }
 
-int checkName(char command[20], char name[][20], int userNum) {
+int checkName(char command[20], char name[][20], int userNum)
+{
     int i = 0;
     int child_index = -1;
     for (i = 0; i < userNum; i++)
@@ -63,7 +66,7 @@ int checkName(char command[20], char name[][20], int userNum) {
         if (strcmp(command, name[i]) == 0)
         {
             child_index = i;
-            break; //name not exist
+            break; // name not exist
         }
     }
     return child_index;
@@ -487,9 +490,11 @@ int main(int argc, char *argv[])
     int appointmentID_C = 0;
 
     // // start communication with child
+    FILE *fp;
+    // Opening file in writing mode --> will overwrite the file if it exists
+    fp = fopen("All_Requests.dat", "w");
     while (processEnd != 1)
     {
-
         // generate ID
         char id[4];
         id[0] = appointmentID_A + '0';
@@ -524,6 +529,9 @@ int main(int argc, char *argv[])
         fgets(input, sizeof(input), stdin);
         input[strcspn(input, "\n")] = 0;
 
+        // write user input into file
+        fprintf(fp, "%s\n", input);
+
         // spilt by space and store into token
         char *token;
         token = strtok(input, " ");
@@ -555,14 +563,16 @@ int main(int argc, char *argv[])
         }
         // ----------------new implement
         // add event
-        else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0) {
-            //char involved[10][20]; // store who involved the event
+        else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0)
+        {
+            // char involved[10][20]; // store who involved the event
 
             // check data valid or not
             int isValid = 1;
             // check name exist and name index
-            int child_index = checkName(command[1],name,userNum);
-            if (child_index == -1) {
+            int child_index = checkName(command[1], name, userNum);
+            if (child_index == -1)
+            {
                 isValid = 0;
                 printf("No such name %s!\n", command[1]);
             }
@@ -570,10 +580,13 @@ int main(int argc, char *argv[])
             j = 5;
             while (strcmp(command[j], "") != 0)
             {
-                child_index = checkName(command[1],name,userNum);
-                if (child_index > -1) {
+                child_index = checkName(command[1], name, userNum);
+                if (child_index > -1)
+                {
                     strcpy(nameinvolved[eventIndex][j - 4], command[j]);
-                } else {
+                }
+                else
+                {
                     isValid = 0;
                     printf("No such name %s!\n", command[j]);
                 }
@@ -592,24 +605,28 @@ int main(int argc, char *argv[])
             int tempYear = atoi(tempY);
             int tempMonth = atoi(tempM);
             int tempDay = atoi(tempD);
-            if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay)) {
+            if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay))
+            {
                 isValid = 0;
                 printf("Date %d is out of the range.\n", command[2]);
             }
             // check start time
-            if (!(strcmp(command[3], "1800") == 0 || strcmp(command[3], "1900") == 0 || strcmp(command[3], "2000") == 0 || strcmp(command[3], "2100") == 0 || strcmp(command[3], "2200") == 0)) {
+            if (!(strcmp(command[3], "1800") == 0 || strcmp(command[3], "1900") == 0 || strcmp(command[3], "2000") == 0 || strcmp(command[3], "2100") == 0 || strcmp(command[3], "2200") == 0))
+            {
                 isValid = 0;
                 printf("Time %d is out of the range.\n", command[3]);
             }
             float tempDuration = atof(command[4]);
-            if (tempDuration > 5.0 ||tempDuration < 0.0) {
+            if (tempDuration > 5.0 || tempDuration < 0.0)
+            {
                 isValid = 0;
                 printf("Duration %d is not in the range.\n", command[4]);
             }
 
-            if (isValid == 1) {
+            if (isValid == 1)
+            {
                 char idString[4];
-                sprintf(idString,"%d", eventIndex);
+                sprintf(idString, "%d", eventIndex);
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
                 addEvent(allEvents, &eventIndex, command[0], command[2], command[3], command[4], idString);
 
@@ -633,7 +650,6 @@ int main(int argc, char *argv[])
                 */
             }
         }
-
 
         // command: privateTime
         else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "printEvent") == 0)
@@ -759,6 +775,8 @@ int main(int argc, char *argv[])
         close(fd[i][1][0]);
     }
 
+    // Close the file
+    fclose(fp);
     printf("Parent pid %d: ByeBye!\n", getpid());
 
     exit(0);
