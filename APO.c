@@ -936,13 +936,13 @@ int main(int argc, char *argv[])
                 {
                     // Case of all child ok for current event
                     strcpy(buf, "pass");
-                    write(fd[askingChild][0][1], buf, strlen(buf));
                 }
                 else
                 {
                     // Case of any child fail to join current event
                     strcpy(buf, "fail");
                 }
+                write(fd[askingChild][0][1], buf, strlen(buf));
             }
 
             //all process checked send End to child
