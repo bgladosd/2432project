@@ -664,8 +664,6 @@ int main(int argc, char *argv[])
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
                                 {
-
-                                    printf("passeddddddddddddddd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
                                     if (childHaveEvent)
                                     {
                                         // passed, log it to Calender
@@ -1077,7 +1075,7 @@ int main(int argc, char *argv[])
             int childOkForCurrentEvent[userNum]; // 0 = not ok, 1 = ok
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
             {
-                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", processingEvent);
+                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", processingEvent);
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                 {
                     // set childOkForCurrentEvent to 0
