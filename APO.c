@@ -462,7 +462,7 @@ int main(int argc, char *argv[])
 
                                 bool childHaveEvent = false;
                                 // child printSCHD confirmed and START
-                                // read once
+                                // read once/////////////////////////////////////////////
 
                                 memset(message, 0, sizeof(message));
                                 n = read(fd[i][0][0], message, sizeof(message));
@@ -470,7 +470,7 @@ int main(int argc, char *argv[])
                                     break; // EOF or error
                                 message[n] = '\0';
 
-                                printf("DEBUG printSCHD 1: Child %s: Received--> %s \n", name[i], message);
+                                printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
                                 if (strcmp("end", message) == 0)
                                 {
                                     // end if first conversation is End
@@ -499,16 +499,16 @@ int main(int argc, char *argv[])
                                     // don't have that event say ok
                                     strcpy(message, "ok");
                                 }
-                                // write once
+                                // write once////////////////////////////////////////////////////
                                 write(fd[i][1][1], message, sizeof(message));
 
-                                // read once
+                                // read once/////////////////////////////////////////////////////
                                 memset(message, 0, sizeof(message));
                                 n = read(fd[i][0][0], message, sizeof(message));
                                 if (n <= 0)
                                     break; // EOF or error
                                 message[n] = '\0';
-                                printf("child received %s \n", message);
+                                printf("Child pass fail part: child %d received %s \n", i, message);
 
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
@@ -523,6 +523,8 @@ int main(int argc, char *argv[])
                                         // add this to rejected list
                                     }
                                 }
+                                strcpy(message, name[i]);
+                                write(fd[i][1][1], message, sizeof(message));
                                 EventPointer++;
                                 // finished one event on parent list,
                                 // start listening
@@ -886,7 +888,8 @@ int main(int argc, char *argv[])
                     // set childOkForCurrentEvent to 0
                     childOkForCurrentEvent[askingChild] = 0;
                     sprintf(eventNumStr, "%d", processingEvent);
-                    strcat(buf, eventNumStr);
+                    memset(buf, 0, sizeof(buf));
+                    strcpy(buf, eventNumStr);
                     write(fd[askingChild][0][1], buf, strlen(buf));
                     n = read(fd[askingChild][1][0], buf, 100);
                     buf[n] = '\0';
@@ -912,7 +915,7 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
-
+                memset(buf, 0, sizeof(buf));
                 if (allChildOk)
                 {
                     // Case of all child ok for current event
@@ -923,18 +926,22 @@ int main(int argc, char *argv[])
                     // Case of any child fail to join current event
                     strcpy(buf, "fail");
                 }
-                printf("parent writed pass or fail \n");
+
+                printf("parent start write pass or fail \n");
                 for (i = 0; i < userNum; i++)
                 {
                     write(fd[i][0][1], buf, strlen(buf));
+                    memset(buf, 0, sizeof(buf));
+                    n = read(fd[i][1][0], buf, sizeof(buf));
+                    buf[n] = '\0';
+                    printf("printFCFS one turn end Reading by parent --> child %s \n", buf);
                 }
-                
             }
             // all process checked send End to child
             strcpy(buf, "end");
             for (i = 0; i < userNum; i++)
             {
-                printf("the end \n");
+                printf("parent go to the end \n");
                 write(fd[i][0][1], buf, strlen(buf));
             }
         }
