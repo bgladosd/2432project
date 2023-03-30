@@ -102,7 +102,7 @@ int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const 
     return 1;
 }
 
-void addEvent(char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
     strcpy(myEvents[*eventCount][0], eventType);
     strcpy(myEvents[*eventCount][1], date);
@@ -111,6 +111,16 @@ void addEvent(char myEvents[][5][15], int *eventCount, const char *eventType, co
     strcpy(myEvents[*eventCount][4], id);
     (*eventCount)++;
 }
+//bgladosd alternative of add event
+// void addEventAlt(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+// {
+//     strcpy(myEvents[*eventCount][0], eventType);
+//     strcpy(myEvents[*eventCount][1], date);
+//     strcpy(myEvents[*eventCount][2], time);
+//     strcpy(myEvents[*eventCount][3], duration);
+//     strcpy(myEvents[*eventCount][4], id);
+//     (*eventCount)++;
+// }
 
 int checkPriority(char event[])
 {
@@ -270,7 +280,10 @@ int main(int argc, char *argv[])
 
     int userNum = argc - 3;
     char name[userNum][20];
-
+    //events list for child and Parent
+    // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
+    char allEvents[200][5][15];
+    
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
     int startYear, endYear, startMonth, endMonth, startDay, endDay;
@@ -348,6 +361,7 @@ int main(int argc, char *argv[])
         }
 
         if (pid == 0)
+        ////////////////////////////////////////////CHILD Start////////////////////////////////////////////////////////////////////////////////////////
         { // Child below
             int j;
             char command[15][20];
@@ -365,10 +379,9 @@ int main(int argc, char *argv[])
             int rejectCount = 0;
 
             // Array to store the events that the child participated
-            char myEvents[200][5][15];
             char FCFS[200][5][15];
             char rejectID[200][4];
-            // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration][]
+            // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
                 memset(message, 0, sizeof(message));
@@ -401,7 +414,7 @@ int main(int argc, char *argv[])
                     }
 
                     // printf("debug: check token \n");
-
+                    //printSchd
                     if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0 || strcmp(command[0], "printEvent") == 0 || strcmp(command[0], "printSchd") == 0)
                     {
                         // Check the availibility
@@ -416,7 +429,7 @@ int main(int argc, char *argv[])
                             printf("Recorded events of child %d, %s \n", i, name[i]);
                             for (k = 0; k <= eventCount; k++)
                             {
-                                printf("%s %s %s %s %s\n", myEvents[k][0], myEvents[k][1], myEvents[k][2], myEvents[k][3], myEvents[k][4]);
+                                printf("%s %s %s %s %s\n", allEvents[k][0], allEvents[k][1], allEvents[k][2], allEvents[k][3], allEvents[k][4]);
                             }
                             strcpy(message, "-> [printEvent done] \n");
                             write(fd[i][1][1], message, sizeof(message));
@@ -426,7 +439,7 @@ int main(int argc, char *argv[])
                             // printf("debug: check FCFS \n");
                             if (strcmp(command[1], "FCFS") == 0)
                             {
-                                doFCFS(myEvents, &eventCount, FCFS, &FCFSCount, i, &rejectCount, rejectID);
+                                doFCFS(allEvents, &eventCount, FCFS, &FCFSCount, i, &rejectCount, rejectID);
                                 strcpy(message, "-> [printSchd FCFS done] \n");
                                 write(fd[i][1][1], message, sizeof(message));
                             }
@@ -445,12 +458,15 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printSchd FCFS done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-
+                        //child add event////////////////////////////////////////////////////
+                        
                         else
                         {
-                            addEvent(myEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
+                            addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
                             strcpy(message, "-> [Recorded] \n");
                             write(fd[i][1][1], message, sizeof(message));
+                            printf("child print event\n");
+                            printf("1. %s\n", allEvents[0]);
                         }
 
                         //}
@@ -495,7 +511,7 @@ int main(int argc, char *argv[])
     char command[15][20];
     char input[100];
 
-    char allEvents[200][5][15];
+    // char allEvents[200][5][15]; moved up make all child also use this
     char nameinvolved[200][10][20]; // store who involved the event
     int eventIndex = 0;
     // ID: for reject multiple people events
@@ -577,7 +593,7 @@ int main(int argc, char *argv[])
             processEnd = 1;
         }
         // ----------------new implement
-        // add event
+        // parent add event
         else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0)
         {
             // char involved[10][20]; // store who involved the event
