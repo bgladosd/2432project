@@ -111,16 +111,16 @@ void addEvent(char myEvents[200][5][15], int *eventCount, const char *eventType,
     strcpy(myEvents[*eventCount][4], id);
     (*eventCount)++;
 }
-//bgladosd alternative of add event
-// void addEventAlt(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
-// {
-//     strcpy(myEvents[*eventCount][0], eventType);
-//     strcpy(myEvents[*eventCount][1], date);
-//     strcpy(myEvents[*eventCount][2], time);
-//     strcpy(myEvents[*eventCount][3], duration);
-//     strcpy(myEvents[*eventCount][4], id);
-//     (*eventCount)++;
-// }
+// bgladosd alternative of add event
+//  void addEventAlt(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+//  {
+//      strcpy(myEvents[*eventCount][0], eventType);
+//      strcpy(myEvents[*eventCount][1], date);
+//      strcpy(myEvents[*eventCount][2], time);
+//      strcpy(myEvents[*eventCount][3], duration);
+//      strcpy(myEvents[*eventCount][4], id);
+//      (*eventCount)++;
+//  }
 
 int checkPriority(char event[])
 {
@@ -280,10 +280,10 @@ int main(int argc, char *argv[])
 
     int userNum = argc - 3;
     char name[userNum][20];
-    //events list for child and Parent
-    // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
+    // events list for child and Parent
+    //  myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
     char allEvents[200][5][15];
-    
+
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
     int startYear, endYear, startMonth, endMonth, startDay, endDay;
@@ -414,7 +414,7 @@ int main(int argc, char *argv[])
                     }
 
                     // printf("debug: check token \n");
-                    //printSchd
+                    // printSchd
                     if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0 || strcmp(command[0], "printEvent") == 0 || strcmp(command[0], "printSchd") == 0)
                     {
                         // Check the availibility
@@ -458,8 +458,8 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printSchd FCFS done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-                        //child add event////////////////////////////////////////////////////
-                        
+                        // child add event////////////////////////////////////////////////////
+
                         else
                         {
                             addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
             token = strtok(NULL, " ");
         }
 
-//        printf("Repeat: your command is %s \n", command); // debug
+        //        printf("Repeat: your command is %s \n", command); // debug
 
         // command: endProgram
         if (strcmp(command[0], "endProgram") == 0)
@@ -808,6 +808,28 @@ int main(int argc, char *argv[])
             //  for each child
             //     send id to child
             //     read buf from child (child will write sth to parent after search and reject the id)
+        }
+        // Cyrus temp testing
+        else if (strcmp(command[0], "printSchdFCFS") == 0)
+        {
+            printf("debug: In here!!!\n");
+            int processingEvent, askingChild;
+            char eventNumStr[10];
+            for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
+            {
+                for (askingChild = 0; askingChild < userNum; askingChild++)
+                {
+                    sprintf(eventNumStr, "%d", processingEvent);
+                    strcpy(buf, "event ");
+                    strcat(buf, eventNumStr);
+                    write(fd[askingChild][0][1], buf, strlen(buf));
+                    n = read(fd[askingChild][1][0], buf, 100);
+                    buf[n]='\0';
+                    printf("Reading by parent --> child %d: %s \n", askingChild, buf);
+                }
+                // printf("debug: %s\n", allEvents[0][i]);
+            }
+            printf("1. %s\n", allEvents[2][4]);
         }
     }
 
