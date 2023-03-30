@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
                             //     strcpy(message, "-> [printSchd FCFS done] \n");
                             //     write(fd[i][1][1], message, sizeof(message));
                             // }
-                            strcpy(message, "-> [printSchd FCFS done] \n");
+                            strcpy(message, "Starting PrintSchdTemp \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
                         // child add event////////////////////////////////////////////////////
@@ -813,6 +813,21 @@ int main(int argc, char *argv[])
         else if (strcmp(command[0], "printSchdFCFS") == 0)
         {
             printf("debug: In here!!!\n");
+            // printf("debug: send printSchd to child\n");
+            for (i = 0; i < userNum; i++)
+            {
+                if (strcmp(command[1], "FCFS") == 0)
+                {
+                    strcpy(buf, "printSchdTemp FCFS");
+                }
+
+                write(fd[i][0][1], buf, strlen(buf));
+                buf_n = read(fd[i][1][0], buf, 100);
+                buf[buf_n] = '\0';
+
+                // buf read from child should be id of reject event
+                // strcat the id
+            }
             int processingEvent, askingChild;
             char eventNumStr[10];
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
