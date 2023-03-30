@@ -12,6 +12,40 @@ typedef struct {
     float duration;
 } Event;
 
+void sortEventByPriority(char myEvents[][5][15], int eventCount) {
+    int arrayLength = eventCount;
+    int i, j;
+    for (i = 0; i < arrayLength -1; i++) {
+        for (j = 0; j < arrayLength - i -1; j++) {
+            if (checkPriority(myEvents[j][0]) > checkPriority(myEvents[j + 1][0])) {
+                char temp[15];
+                strcpy(temp,myEvents[j][0]);
+                strcpy(myEvents[j][0],myEvents[j + 1][0]);
+                strcpy(myEvents[j + 1][0],temp);
+
+                strcpy(temp,myEvents[j][1]);
+                strcpy(myEvents[j][1],myEvents[j + 1][1]);
+                strcpy(myEvents[j + 1][1],temp);
+
+                strcpy(temp,myEvents[j][2]);
+                strcpy(myEvents[j][2],myEvents[j + 1][2]);
+                strcpy(myEvents[j + 1][2],temp);
+
+                strcpy(temp,myEvents[j][3]);
+                strcpy(myEvents[j][0],myEvents[j + 1][3]);
+                strcpy(myEvents[j + 1][3],temp);
+
+                strcpy(temp,myEvents[j][4]);
+                strcpy(myEvents[j][4],myEvents[j + 1][4]);
+                strcpy(myEvents[j + 1][4],temp);
+            }
+
+        }
+
+    }
+
+}
+
 char *upFirstLetter(char *str)
 {
     char *newStr = malloc(sizeof(char) * (strlen(str) + 1));
@@ -20,7 +54,8 @@ char *upFirstLetter(char *str)
     return newStr;
 }
 
-int checkName(char command[20], char name[][20]) {
+int checkName(char command[20], char name[][20], int userNum) {
+    int i = 0;
     int child_index = -1;
     for (i = 0; i < userNum; i++)
     {
@@ -526,7 +561,7 @@ int main(int argc, char *argv[])
             // check data valid or not
             int isValid = 1;
             // check name exist and name index
-            int child_index = checkName(command[1],name);
+            int child_index = checkName(command[1],name,userNum);
             if (child_index == -1) {
                 isValid = 0;
                 printf("No such name %s!\n", command[1]);
@@ -535,7 +570,7 @@ int main(int argc, char *argv[])
             j = 5;
             while (strcmp(command[j], "") != 0)
             {
-                child_index = checkName(command[1],name);
+                child_index = checkName(command[1],name,userNum);
                 if (child_index > -1) {
                     strcpy(nameinvolved[j - 4], command[j]);
                 } else {
