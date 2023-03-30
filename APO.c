@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
                             }
                         }
 
-                        // bgladosd alternative try on the flow
+                        // bgladosd alternative try on the flow CHILD
                         else if (strcmp(command[0], "printSchdTemp") == 0)
                         { // printing recorded events
                             // printf("debug: check FCFS \n");
@@ -472,6 +472,7 @@ int main(int argc, char *argv[])
                 }
             }
             exit(0);
+            ////////////////////////////////////////////CHILD END////////////////////////////////////////////////////////////////////////////////////////
         }
         else
         {
@@ -490,7 +491,7 @@ int main(int argc, char *argv[])
         buf[buf_n] = '\0';
         printf("parent: Reading from child %d: %s \n", i, buf);
     }
-
+    ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
     char command[15][20];
     char input[100];
 
@@ -558,7 +559,7 @@ int main(int argc, char *argv[])
             token = strtok(NULL, " ");
         }
 
-        // printf("Repeat: your command is %s \n", command); // debug
+//        printf("Repeat: your command is %s \n", command); // debug
 
         // command: endProgram
         if (strcmp(command[0], "endProgram") == 0)
@@ -617,7 +618,7 @@ int main(int argc, char *argv[])
             for (j = 6; j <= 7; j++)
                 tempD[j - 6] = command[2][j];
             int tempYear = atoi(tempY);
-            int tempMonth = atoi(tempM);
+            b int tempMonth = atoi(tempM);
             int tempDay = atoi(tempD);
             if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay))
             {
@@ -639,6 +640,7 @@ int main(int argc, char *argv[])
 
             if (isValid == 1)
             {
+                printf("haha\n");
                 char idString[4];
                 sprintf(idString, "%d", eventIndex);
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
@@ -652,21 +654,53 @@ int main(int argc, char *argv[])
                     strcpy(nameinvolved[eventIndex][j - 4], command[j]);
                     j++;
                 }
-                /*
-                strcpy(event[eventIndex].type, command[0]);
-                for (j = 0, j < 10; j++) {
-                    strcpy(event[eventIndex].name[i], nameinvolved[i]);
+                printf("parent add\n");
+                int child_index;
+
+                char involved[10][20]; // store who involved the event
+                char cat_string[100];
+                strcpy(cat_string, "");         // clear buf
+                strcat(cat_string, command[0]); // command type
+                strcat(cat_string, " ");
+                strcat(cat_string, command[2]); // date
+                strcat(cat_string, " ");
+                strcat(cat_string, command[3]); // start time
+                strcat(cat_string, " ");
+                strcat(cat_string, command[4]); // duartion
+                strcat(cat_string, " ");
+                strcat(cat_string, id); // id
+
+                strcpy(involved[0], command[1]);
+                j = 5;
+                while (strcmp(command[j], "") != 0)
+                {
+                    strcpy(involved[j - 4], command[j]);
+                    j++;
                 }
-                strcpy(event[eventIndex].data, command[2]);
-                event[eventIndex].time = atoi(command[3]);
-                event[eventIndex].duration = atof(command[4]);
-                eventIndex++;
-                */
+
+                for (i = 0; i < j; i++)
+                {
+                    printf("run run run\n");
+                    for (child_index = 0; child_index < userNum; child_index++)
+                    {
+                        if (strcmp(involved[i], name[child_index]) == 0)
+                        {
+                            strcpy(buf, cat_string); // copy to buf
+                            write(fd[child_index][0][1], buf, strlen(buf));
+                            printf("msg sent to child %d \n", i);
+
+                            // Reading info from child
+                            buf_n = read(fd[child_index][1][0], buf, 100);
+                            buf[buf_n] = '\0';
+                            printf("Reading by parent --> child %d: %s \n", i, buf);
+                        }
+                    }
+                }
             }
         }
 
-        // command: privateTime
-        else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "printEvent") == 0)
+        // command: printEvent For debug
+        else if (strcmp(command[0], "printEvent") == 0)
         {
 
             int child_index = -1;
@@ -679,81 +713,38 @@ int main(int argc, char *argv[])
                     break;
                 }
             }
-            if (child_index > -1)
-            {
-                char cat_string[100];
-                if (strcmp(command[0], "privateTime") == 0)
-                {
-                    strcpy(cat_string, "");         // clear cat_string
-                    strcat(cat_string, command[0]); // command type
-                    strcat(cat_string, " ");
-                    strcat(cat_string, command[2]); // date
-                    strcat(cat_string, " ");
-                    strcat(cat_string, command[3]); // start time
-                    strcat(cat_string, " ");
-                    strcat(cat_string, command[4]); // duartion
-                    strcat(cat_string, " ");
-                    strcat(cat_string, id); // id
-                }
-                else
-                    strcpy(cat_string, "printEvent");
+            // moveded to with projectmeeting should delete later
+            //  if (child_index > -1)
+            //  {
+            //      char cat_string[100];
+            //      if (strcmp(command[0], "privateTime") == 0)
+            //      {
+            //          strcpy(cat_string, "");         // clear cat_string
+            //          strcat(cat_string, command[0]); // command type
+            //          strcat(cat_string, " ");
+            //          strcat(cat_string, command[2]); // date
+            //          strcat(cat_string, " ");
+            //          strcat(cat_string, command[3]); // start time
+            //          strcat(cat_string, " ");
+            //          strcat(cat_string, command[4]); // duartion
+            //          strcat(cat_string, " ");
+            //          strcat(cat_string, id); // id
+            //      }
+            //      else
+            //          strcpy(cat_string, "printEvent");
 
-                strcpy(buf, cat_string); // copy to buf
+            //     strcpy(buf, cat_string); // copy to buf
 
-                write(fd[child_index][0][1], buf, strlen(buf));
-                printf("msg sent to child %d \n", i);
+            //     write(fd[child_index][0][1], buf, strlen(buf));
+            //     printf("msg sent to child %d \n", i);
 
-                // Reading info from child
-                buf_n = read(fd[i][1][0], buf, 100);
-                buf[buf_n] = '\0';
-                printf("Reading by parent --> child %d: %s \n", i, buf);
-            }
+            //     // Reading info from child
+            //     buf_n = read(fd[i][1][0], buf, 100);
+            //     buf[buf_n] = '\0';
+            //     printf("Reading by parent --> child %d: %s \n", i, buf);
+            // }
         }
 
-        else if (strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0)
-        {
-
-            int child_index;
-
-            char involved[10][20]; // store who involved the event
-            char cat_string[100];
-            strcpy(cat_string, "");         // clear buf
-            strcat(cat_string, command[0]); // command type
-            strcat(cat_string, " ");
-            strcat(cat_string, command[2]); // date
-            strcat(cat_string, " ");
-            strcat(cat_string, command[3]); // start time
-            strcat(cat_string, " ");
-            strcat(cat_string, command[4]); // duartion
-            strcat(cat_string, " ");
-            strcat(cat_string, id); // id
-
-            strcpy(involved[0], command[1]);
-            j = 5;
-            while (strcmp(command[j], "") != 0)
-            {
-                strcpy(involved[j - 4], command[j]);
-                j++;
-            }
-
-            for (i = 0; i < j; i++)
-            {
-                for (child_index = 0; child_index < userNum; child_index++)
-                {
-                    if (strcmp(involved[i], name[child_index]) == 0)
-                    {
-                        strcpy(buf, cat_string); // copy to buf
-                        write(fd[child_index][0][1], buf, strlen(buf));
-                        printf("msg sent to child %d \n", i);
-
-                        // Reading info from child
-                        buf_n = read(fd[child_index][1][0], buf, 100);
-                        buf[buf_n] = '\0';
-                        printf("Reading by parent --> child %d: %s \n", i, buf);
-                    }
-                }
-            }
-        }
         else if (strcmp(command[0], "printSchd") == 0)
         {
             // printf("debug: send printSchd to child\n");
@@ -779,7 +770,7 @@ int main(int argc, char *argv[])
             //     read buf from child (child will write sth to parent after search and reject the id)
         }
 
-        // bgladosd alternative try on the flow
+        // bgladosd alternative try on the flow Parent
         else if (strcmp(command[0], "printSchdTemp") == 0)
         {
             // printf("debug: send printSchd to child\n");
