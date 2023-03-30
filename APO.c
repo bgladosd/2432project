@@ -82,11 +82,7 @@ int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const 
             int existingTime = atoi(myEvents[i][2]);
             float existingDuration = atof(myEvents[i][3]);
             int inputTime = atoi(time);
-            if (inputTime >= existingTime && inputTime < existingTime + (int)(existingDuration * 100))
-            {
-                return 0;
-            }
-            if (inputTime + (int)(duration * 100) > existingTime && inputTime + (int)(duration * 100) <= existingTime + (int)(existingDuration * 100))
+            if (!(inputTime + (int)(duration * 100) <= existingTime || inputTime >= existingTime + (int)(existingDuration * 100)))
             {
                 return 0;
             }
@@ -876,7 +872,6 @@ int main(int argc, char *argv[])
                     strcpy(buf, "fail");
                 }
             }
-
         }
     }
 
