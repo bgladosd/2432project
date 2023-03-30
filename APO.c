@@ -603,8 +603,8 @@ int main(int argc, char *argv[])
 
                                 bool childHaveEvent = false;
                                 // child printSCHD confirmed and START
-                                // read once/////////////////////////////////////////////
 
+                                // read once/////////////////////////////////////////////
                                 memset(message, 0, sizeof(message));
                                 n = read(fd[i][0][0], message, sizeof(message));
                                 if (n <= 0)
@@ -620,15 +620,18 @@ int main(int argc, char *argv[])
 
                                 // should received an ID
                                 // if the processing event round is larger than size of child event list
+                                //
+                                // Seems like it is ok to overflow so I don't do anything first
+                                // 
+                                // if (atoi(message) > eventCount)
+                                // {
+                                //     printf("event overflow \n");
+                                //     EventPointer = 0;
+                                // }
                                 // need check later if it is correct
-                                if (atoi(message) > eventCount)
-                                {
-                                    printf("event overflow \n");
-                                    EventPointer = 0;
-                                }
-                                // check if it is avaiable
 
-                                printf("--->kk debug: %d : %s \n", atoi(message), allEvents[EventPointer][4]);
+                                // check if it is avaiable
+                                printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
 
                                 if (strcmp(allEvents[EventPointer][4], message) == 0)
                                 {
@@ -661,6 +664,8 @@ int main(int argc, char *argv[])
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
                                 {
+
+                                    printf("passeddddddddddddddd!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
                                     if (childHaveEvent)
                                     {
                                         // passed, log it to Calender
@@ -679,20 +684,23 @@ int main(int argc, char *argv[])
                                 else
                                 {
                                     // if the respond not pass or faill it is really weird, we treate it as fail
-                                    printf("super bug not pass or fail");
+                                    printf("super bug not pass or fail!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
                                     strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
                                 }
                                 // tell parent this round is finished
+                                // write once////////////////////////////////////////////////////
                                 strcpy(message, name[i]);
                                 write(fd[i][1][1], message, sizeof(message));
                                 if (childHaveEvent)
+                                {
                                     EventPointer++;
+                                }
                                 // finished one event on parent list,
                                 // start listening
                             }
                         }
                         // child add event////////////////////////////////////////////////////
-
+                        // it is an add event prompt, like privatetime
                         else
                         {
                             addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
@@ -1069,7 +1077,7 @@ int main(int argc, char *argv[])
             int childOkForCurrentEvent[userNum]; // 0 = not ok, 1 = ok
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
             {
-                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~ %d ", processingEvent);
+                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", processingEvent);
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                 {
                     // set childOkForCurrentEvent to 0
@@ -1089,7 +1097,6 @@ int main(int argc, char *argv[])
                     {
                         childOkForCurrentEvent[askingChild] = 0;
                         printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
-                        break;
                     }
                 }
                 // check if all child ok for current event
@@ -1099,28 +1106,27 @@ int main(int argc, char *argv[])
                     if (childOkForCurrentEvent[askingChild] == 0)
                     {
                         allChildOk = 0;
-                        break;
                     }
                 }
+
                 memset(buf, 0, sizeof(buf));
-                if (allChildOk)
-                {
-                    // Case of all child ok for current event
-                    strcpy(buf, "pass");
-                }
-                else
-                {
-                    // Case of any child fail to join current event
-                    strcpy(buf, "fail");
-                }
 
                 printf("parent start write pass or fail \n");
                 for (i = 0; i < userNum; i++)
                 {
+                    if (allChildOk == 1)
+                    {
+                        // Case of all child ok for current event
+                        strcpy(buf, "pass");
+                    }
+                    else
+                    {
+                        // Case of any child fail to join current event
+                        strcpy(buf, "fail");
+                    }
                     write(fd[i][0][1], buf, strlen(buf));
-                    memset(buf, 0, sizeof(buf));
-                    n = read(fd[i][1][0], buf, sizeof(buf));
-                    buf[n] = '\0';
+                    buf_n = read(fd[i][1][0], buf, 100);
+                    buf[buf_n] = '\0';
                     printf("printFCFS one turn end Reading by parent --> child %s \n", buf);
                 }
             }
