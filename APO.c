@@ -311,7 +311,7 @@ int main(int argc, char *argv[])
     // get name of user
     for (i = 0; i < userNum; i++)
     {
-        strcpy(name[i], upFirstLetter(argv[i + 3]));
+        strcpy(name[i], argv[i + 3]);
         printf("%s \n", name[i]);
     }
 
@@ -430,6 +430,20 @@ int main(int argc, char *argv[])
                                 strcpy(message, "-> [printSchd FCFS done] \n");
                                 write(fd[i][1][1], message, sizeof(message));
                             }
+                        }
+
+                        // bgladosd alternative try on the flow
+                        else if (strcmp(command[0], "printSchdTemp") == 0)
+                        { // printing recorded events
+                            // printf("debug: check FCFS \n");
+                            // if (strcmp(command[1], "FCFS") == 0)
+                            // {
+                            //     // doFCFS(myEvents, &eventCount, FCFS, &FCFSCount, i, &rejectCount, rejectID);
+                            //     strcpy(message, "-> [printSchd FCFS done] \n");
+                            //     write(fd[i][1][1], message, sizeof(message));
+                            // }
+                            strcpy(message, "-> [printSchd FCFS done] \n");
+                            write(fd[i][1][1], message, sizeof(message));
                         }
 
                         else
@@ -748,6 +762,32 @@ int main(int argc, char *argv[])
                 if (strcmp(command[1], "FCFS") == 0)
                 {
                     strcpy(buf, "printSchd FCFS");
+                }
+
+                write(fd[i][0][1], buf, strlen(buf));
+                buf_n = read(fd[i][1][0], buf, 100);
+                buf[buf_n] = '\0';
+
+                // buf read from child should be id of reject event
+                // strcat the id
+            }
+            // after all child successfully make their schedule and write reject id to parent,
+            // strtok the string of id to many id
+            // while (!=the end of token)
+            //  for each child
+            //     send id to child
+            //     read buf from child (child will write sth to parent after search and reject the id)
+        }
+
+        // bgladosd alternative try on the flow
+        else if (strcmp(command[0], "printSchdTemp") == 0)
+        {
+            // printf("debug: send printSchd to child\n");
+            for (i = 0; i < userNum; i++)
+            {
+                if (strcmp(command[1], "FCFS") == 0)
+                {
+                    strcpy(buf, "printSchdTemp FCFS");
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
