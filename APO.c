@@ -83,11 +83,7 @@ int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const 
             int existingTime = atoi(myEvents[i][2]);
             float existingDuration = atof(myEvents[i][3]);
             int inputTime = atoi(time);
-            if (inputTime >= existingTime && inputTime < existingTime + (int)(existingDuration * 100))
-            {
-                return 0;
-            }
-            if (inputTime + (int)(duration * 100) > existingTime && inputTime + (int)(duration * 100) <= existingTime + (int)(existingDuration * 100))
+            if (!(inputTime + (int)(duration * 100) <= existingTime || inputTime >= existingTime + (int)(existingDuration * 100)))
             {
                 return 0;
             }
@@ -901,21 +897,53 @@ int main(int argc, char *argv[])
 
             int processingEvent, askingChild;
             char eventNumStr[10];
+            int childOkForCurrentEvent[userNum]; // 0 = not ok, 1 = ok
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
             {
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                 {
+                    // set childOkForCurrentEvent to 0
+                    childOkForCurrentEvent[askingChild] = 0;
                     sprintf(eventNumStr, "%d", processingEvent);
-                    strcpy(buf, "event ");
                     strcat(buf, eventNumStr);
                     write(fd[askingChild][0][1], buf, strlen(buf));
                     n = read(fd[askingChild][1][0], buf, 100);
                     buf[n] = '\0';
                     printf("Reading by parent --> child %d: %s \n", askingChild, buf);
+                    if (strcmp(buf, "ok") == 0)
+                    {
+                        childOkForCurrentEvent[askingChild] = 1;
+                    }
+                    else
+                    {
+                        childOkForCurrentEvent[askingChild] = 0;
+                        printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
+                        break;
+                    }
                 }
-                // printf("debug: %s\n", allEvents[0][i]);
+                // check if all child ok for current event
+                int allChildOk = 1;
+                for (askingChild = 0; askingChild < userNum; askingChild++)
+                {
+                    if (childOkForCurrentEvent[askingChild] == 0)
+                    {
+                        allChildOk = 0;
+                        break;
+                    }
+                }
+
+                if (allChildOk)
+                {
+                    // Case of all child ok for current event
+                    strcpy(buf, "pass");
+                    write(fd[askingChild][0][1], buf, strlen(buf));
+                }
+                else
+                {
+                    // Case of any child fail to join current event
+                    strcpy(buf, "fail");
+                }
             }
-            printf("1. %s\n", allEvents[2][4]);
         }
     }
 
