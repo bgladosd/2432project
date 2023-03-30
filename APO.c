@@ -187,6 +187,7 @@ void setEmptySlots(char Slot[][5][5][15], int num_of_day){
 
 
 bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    printf("---->Child %d: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
     int i,j,k,p;
     int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
 
@@ -210,7 +211,7 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
                 {
                 // timeSlotsSpace[k+p]=checkPriority(myEvents[j][0]);
                     success = 0;
-                    printf("debug Not free: %d %d %d %d %d \n", event[0],event[1],event[2],event[3],event[4]);
+                    printf("debug Not free: %s %s %s %s %s \n", event[0],event[1],event[2],event[3],event[4]);
                     break;
                 }
             }
@@ -221,7 +222,7 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
     }
     if(success==0)return false;
     else {
-        printf("debug free: %d %d %d %d %d \n", event[0],event[1],event[2],event[3],event[4]);
+        printf("debug free: %s %s %s %s %s \n", event[0],event[1],event[2],event[3],event[4]);
         return true;
     }
 }
@@ -608,6 +609,10 @@ int main(int argc, char *argv[])
                                     EventPointer = 0;
                                 }
                                 // check if it is avaiable
+
+                                //if(strlen(message)==)
+
+
                                 if (strcmp(allEvents[EventPointer][4], message) == 0)
                                 {
                                     // have that event, check if it is available
@@ -726,10 +731,21 @@ int main(int argc, char *argv[])
     {
         // generate ID
         char id[4];
+        if(appointmentID_A == 0 && appointmentID_B == 0){
+            id[0] = appointmentID_C + '0';
+            id[1] = '\0';
+        }
+        else if(appointmentID_A == 0 && appointmentID_B != 0){
+            id[0] = appointmentID_B + '0';
+            id[1] = appointmentID_C + '0';
+            id[2] = '\0';
+        }
+        else {
         id[0] = appointmentID_A + '0';
         id[1] = appointmentID_B + '0';
         id[2] = appointmentID_C + '0';
         id[4] = '\0';
+        }
 
         if (appointmentID_C < 10)
         {
