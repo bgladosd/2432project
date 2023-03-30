@@ -809,6 +809,28 @@ int main(int argc, char *argv[])
             //     send id to child
             //     read buf from child (child will write sth to parent after search and reject the id)
         }
+        // Cyrus temp testing
+        else if (strcmp(command[0], "printSchdFCFS") == 0)
+        {
+            printf("debug: In here!!!\n");
+            int processingEvent, askingChild;
+            char eventNumStr[10];
+            for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
+            {
+                for (askingChild = 0; askingChild < userNum; askingChild++)
+                {
+                    sprintf(eventNumStr, "%d", processingEvent);
+                    strcpy(buf, "event ");
+                    strcat(buf, eventNumStr);
+                    write(fd[askingChild][0][1], buf, strlen(buf));
+                    n = read(fd[askingChild][1][0], buf, 100);
+                    buf[n]='\0';
+                    printf("Reading by parent --> child %d: %s \n", askingChild, buf);
+                }
+                // printf("debug: %s\n", allEvents[0][i]);
+            }
+            printf("1. %s\n", allEvents[2][4]);
+        }
     }
 
     // parent end process--------------------------------------------------------------------------------
