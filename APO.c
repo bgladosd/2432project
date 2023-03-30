@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -457,6 +458,74 @@ int main(int argc, char *argv[])
                             // }
                             strcpy(message, "Starting PrintSchdTemp \n");
                             write(fd[i][1][1], message, sizeof(message));
+
+                            int EventPointer = 0;
+                            while (1)
+                            {
+
+                                bool childHaveEvent = false;
+                                // child printSCHD confirmed and START
+                                // read once
+                                memset(message, 0, sizeof(message));
+                                n = read(fd[i][0][0], message, sizeof(message));
+                                if (n <= 0)
+                                    break; // EOF or error
+                                message[n] = '\0';
+
+                                printf("DEBUG printSCHD 1: Child %s: Received--> %s \n", name[i], message);
+                                if (strcmp("end", message) == 0)
+                                {
+                                    // end if first conversation is End
+                                    break;
+                                }
+
+                                // should received an ID
+                                // if the processing event round is larger than size of child event list
+                                // need check later if it is correct
+                                if (atoi(message) > eventCount)
+                                {
+                                    printf("event overflow \n");
+                                    EventPointer = 0;
+                                }
+                                // check if it is avaiable
+                                if (strcmp(allEvents[EventPointer][4], message) == 0)
+                                {
+                                    // have that event, check if it is available
+                                    childHaveEvent = true;
+                                    strcpy(message, "ok");
+                                }
+                                else
+                                {
+                                    // don't have that event say ok
+                                    strcpy(message, "ok");
+                                }
+                                // write once
+                                write(fd[i][1][1], message, sizeof(message));
+
+                                // read once
+                                memset(message, 0, sizeof(message));
+                                n = read(fd[i][0][0], message, sizeof(message));
+                                if (n <= 0)
+                                    break; // EOF or error
+                                message[n] = '\0';
+
+                                // should receive pass or fail
+                                if (strcmp("pass", message) == 0)
+                                {
+                                    // passed, log it to Calender
+                                }
+                                else if (strcmp("pass", message))
+                                {
+                                    // failed
+                                    if (childHaveEvent)
+                                    {
+                                        // add this to rejected list
+                                    }
+                                }
+                                EventPointer++;
+                                // finished one event on parent list,
+                                // start listening
+                            }
                         }
                         // child add event////////////////////////////////////////////////////
 
@@ -824,10 +893,12 @@ int main(int argc, char *argv[])
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
+                printf("printFCFS START Reading by parent --> child %s \n", buf);
 
                 // buf read from child should be id of reject event
                 // strcat the id
             }
+
             int processingEvent, askingChild;
             char eventNumStr[10];
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
@@ -839,7 +910,7 @@ int main(int argc, char *argv[])
                     strcat(buf, eventNumStr);
                     write(fd[askingChild][0][1], buf, strlen(buf));
                     n = read(fd[askingChild][1][0], buf, 100);
-                    buf[n]='\0';
+                    buf[n] = '\0';
                     printf("Reading by parent --> child %d: %s \n", askingChild, buf);
                 }
                 // printf("debug: %s\n", allEvents[0][i]);
