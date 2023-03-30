@@ -137,20 +137,140 @@ int checkPriority(char event[])
         return 1;
 }
 
+int getDayNum(char start[], char end[], int startYear, int startMonth, int startDay){
+    int today = atoi(start);
+    int last = atoi(end);
+    int year = startYear;
+    int month = startMonth;
+    int day = startDay;
+    int leap=0;
+    int num_of_day=0;
+
+    while(last>=today){
+        //debug: printf("%d: %d %d \n",num_of_day,today,last);
+        day++;
+        num_of_day++;
+
+        if((year%4==0 && year%100!=0) && (year%400==0))leap=1;
+
+        if((day==31 && (month==1 ||month==3||month==5||month==7||month==8||month==10||month==12))||(day==30 && (month==4||month==6||month==9||month==11))){
+            day=1;
+            month++;
+        }
+        else if(day==28 && leap==0 && month==2){
+            day=1;
+            month++;
+        }
+        else if(day==29 && leap==1 && month==2){
+            day=1;
+            month++;
+        }
+
+        if(month==13){
+            month=1;
+            year++;
+        }
+
+        today=year*10000+month*100+day;
+    }
+    return num_of_day;
+}
+
+void setEmptySlots(char Slot[][5][5][15], int num_of_day){
+    int i,j;
+    for(i=0; i < num_of_day;i++){
+        for(j=0;j<=4;j++){
+            strcpy(Slot[i][j][0],"empty");
+        }
+    }
+}
+
+
+bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    int i,j,k,p;
+    int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
+
+    char time[5][5] = {"1800", "1900", "2000", "2100", "2200"};
+
+    int pos;
+    int success=1;
+
+    for (k = 0; k <= 4; k++)
+    {   // check timeslots free or not
+        // printf("debug: check each timeslot\n");
+        if (strcmp(event[2], time[k]) == 0)
+        {
+            int dur;
+            dur = atoi(event[3]);
+            // printf("debug: check sametimeslot %d\n",dur);
+            for (p = 0; p < dur; p++)
+            {
+                // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
+                if (strcmp(Slot[dif_of_day][k + p][0],"empty") != 0)
+                {
+                // timeSlotsSpace[k+p]=checkPriority(myEvents[j][0]);
+                    success = 0;
+                    printf("debug Not free: %d %d %d %d %d \n", event[0],event[1],event[2],event[3],event[4]);
+                    break;
+                }
+            }
+        }
+
+        if (success == 0)
+        break;
+    }
+    if(success==0)return false;
+    else {
+        printf("debug free: %d %d %d %d %d \n", event[0],event[1],event[2],event[3],event[4]);
+        return true;
+    }
+}
+
+void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    int i,j,k,p;
+    int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
+
+    char time[5][5] = {"1800", "1900", "2000", "2100", "2200"};
+    int found=-1;
+
+    for (k = 0; k <= 4; k++)
+    {   // check timeslots free or not
+        // printf("debug: check each timeslot\n");
+        if (strcmp(event[2], time[k]) == 0)
+        {
+            found=1;
+            int dur;
+            dur = atoi(event[3]);
+            // printf("debug: check sametimeslot %d\n",dur);
+            for (p = 0; p < dur; p++)
+            {
+                // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
+                for(i=0;i<=4;i++){
+                    strcpy(Slot[dif_of_day][k + p][i], event[i]);
+                }
+            }
+        }
+
+        
+        if(found==1)break;
+    }
+
+}
+
 void doFCFS(char myEvents[][5][15], int *eventCount, char FCFS[][5][15], int *FCFSCount, int childID, int *rejectCount, char rejectID[][4])
 {
     int i, j, k, p;
     int day = 9; // Lazy to calcuate difference of date ,use 9 first
 
     printf("debug: doFCFS \n");
-
+/*
     // clear FCFS storage first, empty can be used to check output or not in future
     for (i = 0; i <= *eventCount; i++)
     {
         strcpy(FCFS[i][0], "empty");
         strcpy(FCFS[i][4], "000");
     }
-
+*/
     if (*eventCount == 0)
     {
         printf("this child no events \n");
@@ -378,6 +498,8 @@ int main(int argc, char *argv[])
             // Array to store the events that the child participated
             char FCFS[200][5][15];
             char rejectID[200][4];
+            char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1][5][5][15];
+            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1);
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -489,9 +611,11 @@ int main(int argc, char *argv[])
                                 if (strcmp(allEvents[EventPointer][4], message) == 0)
                                 {
                                     // have that event, check if it is available
-                                    childHaveEvent = true;
-                                    strcpy(message, "ok");
+                                    //tryTimeSlot
+                                    childHaveEvent = tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                    if(childHaveEvent)strcpy(message, "ok");
                                     // if not ok
+                                    else strcpy(message, "no");
                                     // say no
                                 }
                                 else
@@ -514,6 +638,7 @@ int main(int argc, char *argv[])
                                 if (strcmp("pass", message) == 0)
                                 {
                                     // passed, log it to Calender
+                                    addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
                                 }
                                 else if (strcmp("pass", message))
                                 {
@@ -521,6 +646,7 @@ int main(int argc, char *argv[])
                                     if (childHaveEvent)
                                     {
                                         // add this to rejected list
+                                        strcpy(rejectID[rejectCount++],allEvents[EventPointer][4]);
                                     }
                                 }
                                 strcpy(message, name[i]);
