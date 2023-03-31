@@ -666,10 +666,6 @@ void doFCFS(char myEvents[][5][15], int *eventCount, char FCFS[][5][15], int *FC
 
 void convertEventInfoForPrint(char arr[][15], char result[][15])
 {
-    printf("%s", arr[0]);
-    printf("%s", arr[1]);
-    printf("%s", arr[2]);
-    printf("%s\n", arr[3]);
     // Convert date format from "YYYYMMDDHHMM" to "YYYY-MM-DD"
     char date[11];
     strncpy(date, arr[1], 4);
@@ -688,7 +684,6 @@ void convertEventInfoForPrint(char arr[][15], char result[][15])
 
     // Calculate end time based on start time and duration
     int duration = atoi(arr[3]);
-    printf("Duration: %d\n", duration);
     char startHrStr[3];
     strncpy(startHrStr, arr[2], 2);
     startHrStr[2] = '\0';
@@ -1619,7 +1614,6 @@ int main(int argc, char *argv[])
             strcpy(buf, "end");
             for (i = 0; i < userNum; i++)
             {
-                printf("parent go to the end \n");
                 write(fd[i][0][1], buf, strlen(buf));
             }
 
@@ -1652,7 +1646,7 @@ int main(int argc, char *argv[])
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
                 //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
-                fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", nameWithCap[i], buf);
+                fprintf(fpFCFS, "\n  %s, you have %s̲ appointments.\n", nameWithCap[i], buf);
 
                 fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", "Date", "Start", "End", "Type", "People");
                 fprintf(fpFCFS, "=================================================================\n");
@@ -1676,14 +1670,12 @@ int main(int argc, char *argv[])
                         {
                             char eventInfo[4][15];
                             convertEventInfoForPrint(allEvents[allEventInedx], eventInfo);
-                            printf("Parit: ");
                             for (parti = 0; parti < userNum; parti++)
                             {
                                 if (strlen(allEvents[allEventInedx][parti]) > 0)
                                 {
                                     if (strcmp(nameinvolved[allEventInedx][parti], name[i]) == 0)
                                         continue;
-                                    printf(" %s ", nameinvolved[allEventInedx][parti]);
                                     strcat(curEventParticipants, upFirstLetter(nameinvolved[allEventInedx][parti]));
                                     strcat(curEventParticipants, " ");
                                 }
@@ -1713,7 +1705,7 @@ int main(int argc, char *argv[])
             fpReject = fopen("rejected.dat", "w");
 
             fprintf(fpReject, "***Rejected List***\n\n");
-            // fprintf(fpReject, "Altogether there are %d appointments rejected.\n", rejectedNum);
+            fprintf(fpReject, "Altogether there are %d̲ appointments rejected.\n", rejectedCount);
             fprintf(fpFCFS, "=================================================================\n");
             char curEventParticipants[20 * userNum + 10];
             int parti;
@@ -1724,7 +1716,6 @@ int main(int argc, char *argv[])
                 {
                     if (strlen(allEvents[rejectedList[i]][parti]) > 0)
                     {
-                        printf(" %s ", nameinvolved[rejectedList[i]][parti]);
                         strcat(curEventParticipants, nameinvolved[rejectedList[i]][parti]);
                         strcat(curEventParticipants, " ");
                     }
@@ -1736,6 +1727,10 @@ int main(int argc, char *argv[])
             fprintf(fpFCFS, "=================================================================\n");
             // Close the file
             fclose(fpReject);
+
+            // Clear the variable for rejected list and count
+            rejectedCount = 0;
+            memset(rejectedList, 0, sizeof(rejectedList));
         }
         else if (strcmp(command[0][0], "inputFile") != 0)
         {
