@@ -1787,10 +1787,10 @@ int main(int argc, char *argv[])
             fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
             fprintf(fpFCFS, "=================================================================\n");
             fprintf(fpFCFS, "\n\n%s\n", "***  Performance ***\n");
-            // fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
-            // fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", 5);
-            // fprintf(fpFCFS, "Total Number of Requests Rejected: %d\n", 5);
-            // fprintf(fpFCFS, "\n\n");
+            fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
+            fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", eventIndex-rejectedCount);
+            fprintf(fpFCFS, "Total Number of Requests Rejected: %d\n", rejectedCount);
+            fprintf(fpFCFS, "\n\n");
             fprintf(fpFCFS, "Number of Requests Accepted by Individual:\n");
             for (i = 0; i < userNum; i++)
             {
