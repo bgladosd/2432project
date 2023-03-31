@@ -15,14 +15,42 @@ char *upFirstLetter(char *str)
 }
 
 // check if string is only space
-int isOnlySpace(char* str) {
-    while (*str) {
-        if (!isspace(*str)) {
+int isOnlySpace(char *str)
+{
+    while (*str)
+    {
+        if (!isspace(*str))
+        {
             return 0;
         }
         str++;
     }
     return 1;
+}
+
+float utilizationCal(char slot[][5][5][15], int dayNum)
+{
+    float percentage;
+    int usedSlot = 0;
+    int i, j, k;
+
+    for (i = 0; i <= dayNum; i++)
+    {
+        for (j = 0; j < 5; j++)
+        {
+            if (strcmp(slot[i][j][0], "empty"))
+                usedSlot++;
+        }
+    }
+
+    float a, b;
+    a = usedSlot;
+    b = (dayNum + 1) * 5;
+
+    printf("debug: utilization dayNum: %f %f\n", a, b);
+
+    percentage = a / b;
+    return percentage;
 }
 
 // pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
@@ -1025,6 +1053,12 @@ int main(int argc, char *argv[])
                                             // After printing all the events in the child, send the endRealEventId message
                                             strcpy(message, "endRealEventId");
                                             write(fd[i][1][1], message, sizeof(message));
+
+                                            float util = utilizationCal(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
+                                            char utilStr[50];
+                                            sprintf(utilStr, "%g", util);
+                                            strcpy(message, utilStr);
+                                            write(fd[i][1][1], message, sizeof(message));
                                         }
                                         else if (schdMode == 2)
                                         {
@@ -1050,6 +1084,12 @@ int main(int argc, char *argv[])
 
                                             // After printing all the events in the child, send the endRealEventId message
                                             strcpy(message, "endRealEventId");
+                                            write(fd[i][1][1], message, sizeof(message));
+
+                                            float util = utilizationCal(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
+                                            char utilStr[50];
+                                            sprintf(utilStr, "%g", util);
+                                            strcpy(message, utilStr);
                                             write(fd[i][1][1], message, sizeof(message));
                                         }
                                     }
@@ -1679,6 +1719,10 @@ int main(int argc, char *argv[])
                 fprintf(fpFCFS, "%s\n", "Algorithm used: Priority:");
             fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
 
+            int numOfEventUserAccepted[userNum];
+            memset(numOfEventUserAccepted, 0, sizeof(numOfEventUserAccepted));
+            char userUtil[userNum][50];
+
             for (i = 0; i < userNum; i++)
             {
                 strcpy(buf, "getRealEventId");
@@ -1699,6 +1743,9 @@ int main(int argc, char *argv[])
                     buf[buf_n] = '\0';
                     if (strcmp(buf, "endRealEventId") == 0)
                     {
+                        buf_n = read(fd[i][1][0], buf, 100);
+                        buf[buf_n] = '\0';
+                        strcpy(userUtil[i], buf);
                         break;
                     }
                     // After getting each event number, retrieve the event from allEvents
@@ -1710,6 +1757,7 @@ int main(int argc, char *argv[])
                         strcpy(curEventParticipants, "");
                         if (strcmp(allEvents[allEventInedx][4], buf) == 0)
                         {
+                            numOfEventUserAccepted[i]++;
                             char eventInfo[4][15];
                             convertEventInfoForPrint(allEvents[allEventInedx], eventInfo);
                             for (parti = 0; parti < userNum; parti++)
@@ -1722,16 +1770,38 @@ int main(int argc, char *argv[])
                                     strcat(curEventParticipants, " ");
                                 }
                             }
-                            if (isOnlySpace(curEventParticipants)) strcpy(curEventParticipants, "-");
+                            if (isOnlySpace(curEventParticipants))
+                                strcpy(curEventParticipants, "-");
                             fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", eventInfo[0], eventInfo[1], eventInfo[2], eventInfo[3], curEventParticipants);
                             break;
                         }
                     }
                 }
-                fprintf(fpFCFS, "\n");
-                fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
-                fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
-                fprintf(fpFCFS, "=================================================================\n");
+            }
+            fprintf(fpFCFS, "\n");
+            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
+            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
+            fprintf(fpFCFS, "=================================================================\n");
+            fprintf(fpFCFS, "\n");
+            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
+            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
+            fprintf(fpFCFS, "=================================================================\n");
+            fprintf(fpFCFS, "\n\n%s\n", "***  Performance ***\n");
+            // fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
+            // fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", 5);
+            // fprintf(fpFCFS, "Total Number of Requests Rejected: %d\n", 5);
+            // fprintf(fpFCFS, "\n\n");
+            fprintf(fpFCFS, "Number of Requests Accepted by Individual:\n");
+            for (i = 0; i < userNum; i++)
+            {
+                fprintf(fpFCFS, "%s: %d\n", nameWithCap[i], numOfEventUserAccepted[i]);
+            }
+            // do something
+            fprintf(fpFCFS, "\n\n");
+            fprintf(fpFCFS, "Utilization of Time Slot:\n");
+            for (i = 0; i < userNum; i++)
+            {
+                fprintf(fpFCFS, "%s: %s%%\n", nameWithCap[i], userUtil[i]);
             }
             // Close the file
             fclose(fpFCFS);
