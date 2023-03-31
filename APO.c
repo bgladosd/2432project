@@ -5,6 +5,15 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+// give string output First letter UP
+char *upFirstLetter(char *str)
+{
+    char *newStr = malloc(sizeof(char) * (strlen(str) + 1));
+    newStr[0] = toupper(str[0]);
+    strcpy(newStr + 1, str + 1);
+    return newStr;
+}
+
 // pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
 void pullCommandArray(char command[][15][20], int *commandIndex) {
     int i, j;
@@ -1120,6 +1129,7 @@ int main(int argc, char *argv[])
 
     // char allEvents[200][5][15]; moved up make all child also use this
     char nameinvolved[200][10][20]; // store who involved the event
+    char userIdinvolved[200][10]; // store id involved the event
     int eventIndex = 0;
     // ID: for reject multiple people events
     char appointmentID[200][4];
@@ -1313,6 +1323,14 @@ int main(int argc, char *argv[])
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
                 addEvent(allEvents, &eventIndex, command[0][0], command[0][2], command[0][3], command[0][4], idString);
                 // add to name involved array
+                strcpy(nameinvolved[eventIndex][0], command[0][1]);
+                j = 5;
+                while (strcmp(command[0][j], "") != 0)
+                {
+                    strcpy(nameinvolved[eventIndex][j - 4], command[0][j]);
+                    j++;
+                }
+                // add id to involved array
                 strcpy(nameinvolved[eventIndex][0], command[0][1]);
                 j = 5;
                 while (strcmp(command[0][j], "") != 0)
