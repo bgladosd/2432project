@@ -261,6 +261,44 @@ void addEvent_gathering(char gathering[50][6][15], int *gatheringCount, const ch
     (*gatheringCount)++;
 }
 
+void combine_eventArray(char privateTime[50][6][15],char projectMeeting[50][6][15],char groupStudy[50][6][15],char gathering[50][6][15],int privateTimeCount,int projectMeetingCount,int groupStudyCount, int gatheringCount,char clone_myEvents[200][5][15]){
+    int i,j,pos;
+    i=0;
+    pos=0;
+    while(i<privateTimeCount){
+        for(j=0;j<5;j++){
+            strcpy(clone_myEvents[i][j], privateTime[i][j]);
+        }
+    }
+    pos=i;
+    i=0;
+    while(i<projectMeetingCount){
+        for(j=0;j<5;j++){
+            strcpy(clone_myEvents[i+pos][j], projectMeeting[i+pos][j]);
+        }
+    }
+    pos=i+pos;
+    i=0;
+    while(i<groupStudyCount){
+        for(j=0;j<5;j++){
+            strcpy(clone_myEvents[i+pos][j], groupStudy[i+pos][j]);
+        }
+    }
+    pos=i+pos;
+    i=0;
+    while(i<gatheringCount){
+        for(j=0;j<5;j++){
+            strcpy(clone_myEvents[i+pos][j], gathering[i+pos][j]);
+        }
+    }
+    pos=i+pos;
+    //debug
+    for(i=0;i<pos;i++){
+        printf("event %d, %s %s %s %s %s \n",i,clone_myEvents[i][0],clone_myEvents[i][1],clone_myEvents[i][2],clone_myEvents[i][3],clone_myEvents[i][4]);
+    }
+
+}
+
 // bgladosd alternative of add event
 //  void addEventAlt(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 //  {
@@ -825,8 +863,7 @@ int main(int argc, char *argv[])
                             }
                             else if(strcmp(command[1], "Priority" ) == 0){
                                 strcpy(message, "Starting PrintSchdTemp Priority\n");
-                                cloneEvent(allEvents,clone_allEvents,eventCount);
-                                sortEventByPriority(clone_allEvents,eventCount);
+                                ccombine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
                                 schdMode=2;
                                 write(fd[i][1][1], message, sizeof(message));
                                 // clear slots before use
@@ -1264,6 +1301,11 @@ int main(int argc, char *argv[])
                     j++;
                 }
 
+                if(strcmp(command[0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0], command[1], command[2], command[3], command[4]);
+                else if(strcmp(command[0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0], command[1], command[2], command[3], command[4]);
+                else if(strcmp(command[0],"groupStudy")==0)addEvent_groupStudyCount(groupStudy, &groupStudyCount, command[0], command[1], command[2], command[3], command[4]);
+                else if(strcmp(command[0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0], command[1], command[2], command[3], command[4]);
+
                 for (i = 0; i < j; i++)
                 {
                     for (child_index = 0; child_index < userNum; child_index++)
@@ -1376,6 +1418,7 @@ int main(int argc, char *argv[])
                 else if (strcmp(command[0][1], "Priority") == 0)
                 {
                     strcpy(buf, "printSchd Priority");
+                    combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
