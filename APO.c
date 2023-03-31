@@ -151,16 +151,16 @@ int inputStringCommand(char command[200][15][20], int *commandIndex, char string
 {
     int i;
     pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
-    printf("addCommand");
+    printf("addCommand\n");
     (*commandIndex)++;
     char *token;
-    token = strtok(stringCommand," ");
+    token = strtok(stringCommand, " ");
     i = 0;
     while (token != NULL) // read each character in line
     {
         strcpy(command[*commandIndex][i], token);
         // printf("read <----- %s\n",command[commandIndex][i]);
-        printf("%s \n",command[i]); //debug what is input
+        printf("%s \n", command[i]); // debug what is input
         i++;
         token = strtok(NULL, " ");
     }
@@ -1280,6 +1280,7 @@ int main(int argc, char *argv[])
     }
     ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
     bool doingAll = false;
+    bool doingAllFCFSEnd = false;
     int reportIndex = 0;
     char command[200][15][20];
     int commandIndex = -1;
@@ -1358,6 +1359,20 @@ int main(int argc, char *argv[])
         */
 
         // if command index = -1 , read input, else run command
+
+        // printf("%s start start start command index index\n", command[0][0]);
+        // printf("%s start start start command index index\n", command[0][1]);
+        // printf("%d start start start command index index\n", commandIndex);
+
+        if (doingAll && doingAllFCFSEnd)
+        {
+
+            char stringCmd[50] = "";
+            commandIndex = 0;
+            strcpy(command[0][0], "printSchd");
+            strcpy(command[0][1], "PRIORITY");
+        }
+
         if (commandIndex == -1)
         {
             if (SPECIAL_CASE)
@@ -1406,12 +1421,21 @@ int main(int argc, char *argv[])
         }
         if (strcmp(command[0][0], "stringCommand") == 0)
         {
-            char stringCmd[50]="";
-            strcpy(stringCmd,"privateTime paul 20230401 1800 2.0");
-            inputStringCommand(command, &commandIndex,stringCmd);
+            char stringCmd[50] = "";
+            strcpy(stringCmd, "privateTime paul 20230401 1800 2.0");
+            inputStringCommand(command, &commandIndex, stringCmd);
         }
+        if (strcmp(command[0][0], "printSchd") == 0 && strcmp(command[0][1], "ALL") == 0)
+        {
 
-
+            printf("comeon getin here\n");
+            doingAll = true;
+            doingAllFCFSEnd = false;
+            char stringCmd[50] = "";
+            strcpy(stringCmd, "printSchd FCFS");
+            inputStringCommand(command, &commandIndex, stringCmd);
+            printf("%d command index index\n", commandIndex);
+        }
 
         //        printf("Repeat: your command is %s \n", command); // debug
 
@@ -1610,9 +1634,14 @@ int main(int argc, char *argv[])
             // }
         }
 
-        // Handle printSchd
-        else if (strcmp(command[0][0], "printSchd") == 0)
+        // Handle printSchd parent
+        else if (strcmp(command[0][0], "printSchd") == 0 && strcmp(command[0][1], "ALL") != 0)
         {
+            printf("doing maaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+            if (doingAll)
+            {
+                printf("doing alllllllllllllllllllllllllllllllllllllllll");
+            }
 
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
@@ -1629,15 +1658,6 @@ int main(int argc, char *argv[])
                     schdMode = 2;
                     combine_eventArray(privateTime, projectMeeting, groupStudy, gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount, clone_allEvents);
                     strcpy(buf, "printSchd Priority");
-                    SPECIAL_CASE = 0;
-                }
-                else if (strcmp(command[0][1], "All") == 0)
-                {
-                    SPECIAL_CASE = 1;
-                    strcpy(SPECIAL_USER_INPUT, "printSchd Priority\n");
-                    schdMode = 1;
-                    strcpy(buf, "printSchd FCFS");
-                    printf("IN SPECIAL HANDLE CASE--------\n");
                 }
                 else
                 {
@@ -1745,9 +1765,25 @@ int main(int argc, char *argv[])
             sprintf(reportNameId, "%02d", reportIndex);
             strcat(reportFileName, reportNameId);
             strcat(reportFileName, "_");
-            strcat(reportFileName, command[0][1]);
+            if (doingAll)
+            {
+                strcat(reportFileName, "ALL");
+            }
+            else
+            {
+                strcat(reportFileName, command[0][1]);
+            }
+
             strcat(reportFileName, ".txt");
-            fpFCFS = fopen(reportFileName, "w");
+            printf(command[0][1]);
+            if (doingAll && strcmp(command[0][1], "PRIORITY") == 0)
+            {
+                fpFCFS = fopen(reportFileName, "a+");
+            }
+            else
+            {
+                fpFCFS = fopen(reportFileName, "w");
+            }
 
             fprintf(fpFCFS, "%s", "Period: ");
             fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
@@ -1844,10 +1880,15 @@ int main(int argc, char *argv[])
             // Close the file
             fclose(fpFCFS);
 
-            // printed one file index of report plus
-            reportIndex++;
-
-            printf("[Exported file: %s.txt]\n", reportFileName);
+            if (doingAll && strcmp(command[0][1], "FCFS") == 0)
+            {
+            }
+            else
+            {
+                // printed one file index of report plus
+                reportIndex++;
+            }
+            printf("[Exported file: %s]\n", reportFileName);
 
             // Handle print rejected list
             FILE *fpReject;
@@ -1880,6 +1921,33 @@ int main(int argc, char *argv[])
             // Clear the variable for rejected list and count
             rejectedCount = 0;
             memset(rejectedList, 0, sizeof(rejectedList));
+
+            if (doingAll && strcmp(command[0][1], "PRIORITY") == 0)
+            {
+                printf("YUMYUMYUMYUMYUM\n");
+                doingAll = false;
+                doingAllFCFSEnd = false;
+            }
+            printf("notice here!!!!!!!!!!!!!ASDASDHKERUIJKWEHRJKWEHRNJKWERFHJKWEHFTJKWEHFJKSDHJKFHSDJKFHJKSDFHJKD\n");
+            if (doingAll)
+            {
+                printf("ya doing all\n");
+            }
+            printf(command[0][1]);
+
+            printf("\n");
+            printf("notice here!!!!!!!!!!!!!ASDASDHKERUIJKWEHRJKWEHRNJKWERFHJKWEHFTJKWEHFJKSDHJKFHSDJKFHJKSDFHJKD\n");
+
+            if (doingAll && strcmp(command[0][1], "FCFS") == 0)
+            {
+
+                printf("work againwork againwork againwork againwork againwork againwork againwork againwork againwork againwork againwork againwork again\n");
+                // char stringCmd[50] = "";
+                // strcpy(stringCmd, "printSchd PRIORITY");
+                // inputStringCommand(command, &commandIndex, stringCmd);
+                // printf("%d command index index\n", commandIndex);
+                doingAllFCFSEnd = true;
+            }
         }
         else if (strcmp(command[0][0], "inputFile") != 0)
         {
