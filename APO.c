@@ -137,77 +137,67 @@ int checkPriority(char event[])
         return 1;
 }
 
-int getDayNum(char start[], char end[], int startYear, int startMonth, int startDay)
-{
+int getDayNum(char start[], char end[], int startYear, int startMonth, int startDay){
     int today = atoi(start);
     int last = atoi(end);
     int year = startYear;
     int month = startMonth;
     int day = startDay;
-    int leap = 0;
-    int num_of_day = 0;
+    int leap=0;
+    int num_of_day=0;
 
-    while (last >= today)
-    {
-        // debug: printf("%d: %d %d \n",num_of_day,today,last);
+    while(last>=today){
+        //debug: printf("%d: %d %d \n",num_of_day,today,last);
         day++;
         num_of_day++;
 
-        if ((year % 4 == 0 && year % 100 != 0) && (year % 400 == 0))
-            leap = 1;
+        if((year%4==0 && year%100!=0) && (year%400==0))leap=1;
 
-        if ((day == 31 && (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)) || (day == 30 && (month == 4 || month == 6 || month == 9 || month == 11)))
-        {
-            day = 1;
+        if((day==31 && (month==1 ||month==3||month==5||month==7||month==8||month==10||month==12))||(day==30 && (month==4||month==6||month==9||month==11))){
+            day=1;
             month++;
         }
-        else if (day == 28 && leap == 0 && month == 2)
-        {
-            day = 1;
+        else if(day==28 && leap==0 && month==2){
+            day=1;
             month++;
         }
-        else if (day == 29 && leap == 1 && month == 2)
-        {
-            day = 1;
+        else if(day==29 && leap==1 && month==2){
+            day=1;
             month++;
         }
 
-        if (month == 13)
-        {
-            month = 1;
+        if(month==13){
+            month=1;
             year++;
         }
 
-        today = year * 10000 + month * 100 + day;
+        today=year*10000+month*100+day;
     }
     return num_of_day;
 }
 
-void setEmptySlots(char Slot[][5][5][15], int num_of_day)
-{
-    int i, j;
-    for (i = 0; i < num_of_day; i++)
-    {
-        for (j = 0; j <= 4; j++)
-        {
-            strcpy(Slot[i][j][0], "empty");
+void setEmptySlots(char Slot[][5][5][15], int num_of_day){
+    int i,j;
+    for(i=0; i < num_of_day;i++){
+        for(j=0;j<=4;j++){
+            strcpy(Slot[i][j][0],"empty");
         }
     }
 }
 
-bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay)
-{
-    printf("---->Child %d try: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
-    int i, j, k, p;
-    int dif_of_day = getDayNum(start, event[1], startYear, startMonth, startDay);
+
+bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    printf("---->Child %d try: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
+    int i,j,k,p;
+    int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
 
     char time[5][5] = {"1800", "1900", "2000", "2100", "2200"};
 
     int pos;
-    int success = 1;
+    int success=1;
 
     for (k = 0; k <= 4; k++)
-    { // check timeslots free or not
+    {   // check timeslots free or not
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
@@ -217,61 +207,58 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
             for (p = 0; p < dur; p++)
             {
                 // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
-                if (strcmp(Slot[dif_of_day][k + p][0], "empty") != 0)
+                if (strcmp(Slot[dif_of_day][k + p][0],"empty") != 0)
                 {
-                    // timeSlotsSpace[k+p]=checkPriority(myEvents[j][0]);
+                // timeSlotsSpace[k+p]=checkPriority(myEvents[j][0]);
                     success = 0;
-                    printf("debug Not free: %s %s %s %s %s \n", event[0], event[1], event[2], event[3], event[4]);
+                    printf("debug Not free: %s %s %s %s %s \n", event[0],event[1],event[2],event[3],event[4]);
                     break;
                 }
             }
         }
 
         if (success == 0)
-            break;
+        break;
     }
-    if (success == 0)
-        return false;
-    else
-    {
-        printf("debug free: %s %s %s %s %s \n", event[0], event[1], event[2], event[3], event[4]);
+    if(success==0)return false;
+    else {
+        printf("debug free: %s %s %s %s %s \n", event[0],event[1],event[2],event[3],event[4]);
         return true;
     }
 }
 
-void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay)
-{
-    printf("---->Child %d add: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
-    int i, j, k, p;
-    int dif_of_day = getDayNum(start, event[1], startYear, startMonth, startDay);
+void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay){
+    printf("---->Child %d add: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
+    int i,j,k,p;
+    int dif_of_day=getDayNum(start,event[1],startYear,startMonth,startDay);
 
     char time[5][5] = {"1800", "1900", "2000", "2100", "2200"};
-    int found = -1;
+    int found=-1;
 
     for (k = 0; k <= 4; k++)
-    { // check timeslots free or not
+    {   // check timeslots free or not
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
-            found = 1;
+            found=1;
             int dur;
             dur = atoi(event[3]);
             // printf("debug: check sametimeslot %d\n",dur);
             for (p = 0; p < dur; p++)
             {
                 // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
-                for (i = 0; i <= 4; i++)
-                {
+                for(i=0;i<=4;i++){
                     strcpy(Slot[dif_of_day][k + p][i], event[i]);
                 }
             }
         }
 
-        if (found == 1)
-            break;
+        
+        if(found==1)break;
     }
 
-    printf("---->Child %d end: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
+    printf("---->Child %d end: %s %s %s %s %s \n", getpid()-getppid()-1,event[0],event[1],event[2],event[3],event[4]);
+
 }
 
 void doFCFS(char myEvents[][5][15], int *eventCount, char FCFS[][5][15], int *FCFSCount, int childID, int *rejectCount, char rejectID[][4])
@@ -280,14 +267,14 @@ void doFCFS(char myEvents[][5][15], int *eventCount, char FCFS[][5][15], int *FC
     int day = 9; // Lazy to calcuate difference of date ,use 9 first
 
     printf("debug: doFCFS \n");
-    /*
-        // clear FCFS storage first, empty can be used to check output or not in future
-        for (i = 0; i <= *eventCount; i++)
-        {
-            strcpy(FCFS[i][0], "empty");
-            strcpy(FCFS[i][4], "000");
-        }
-    */
+/*
+    // clear FCFS storage first, empty can be used to check output or not in future
+    for (i = 0; i <= *eventCount; i++)
+    {
+        strcpy(FCFS[i][0], "empty");
+        strcpy(FCFS[i][4], "000");
+    }
+*/
     if (*eventCount == 0)
     {
         printf("this child no events \n");
@@ -416,7 +403,7 @@ int main(int argc, char *argv[])
     char name[userNum][20];
     // events list for child and Parent
     //  myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
-    char allEvents[200][5][15] = {{{0}}};
+    char allEvents[200][5][15];
 
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
@@ -515,8 +502,8 @@ int main(int argc, char *argv[])
             // Array to store the events that the child participated
             char FCFS[200][5][15];
             char rejectID[200][4];
-            char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
-
+            char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1][5][5][15];
+            
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -594,17 +581,17 @@ int main(int argc, char *argv[])
                             // }
                             strcpy(message, "Starting PrintSchdTemp \n");
                             write(fd[i][1][1], message, sizeof(message));
-                            // clear slots before use
-                            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
+                            //clear slots before use
+                            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)+1);
 
                             int EventPointer = 0;
                             while (1)
                             {
-
+                                
                                 bool childHaveEvent = false;
                                 // child printSCHD confirmed and START
-
                                 // read once/////////////////////////////////////////////
+
                                 memset(message, 0, sizeof(message));
                                 n = read(fd[i][0][0], message, sizeof(message));
                                 if (n <= 0)
@@ -614,44 +601,30 @@ int main(int argc, char *argv[])
                                 printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
                                 if (strcmp("end", message) == 0)
                                 {
-                                    // // Cyrus make output
-                                    // for (j = 0; j < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); j++)
-                                    // {
-                                    //     if ( strcmp( FCFS_Slot[j][i][0],"empty"))
-                                    //     {
-                                    //         printf("\n it is not empyt \n");
-                                    //         printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[j][i][0], FCFS_Slot[j][i][1], FCFS_Slot[j][i][2], FCFS_Slot[j][i][3], FCFS_Slot[j][i][4]);
-                                    //     }
-                                    // }
                                     // end if first conversation is End
                                     break;
                                 }
 
                                 // should received an ID
                                 // if the processing event round is larger than size of child event list
-                                //
-                                // Seems like it is ok to overflow so I don't do anything first
-                                //
-                                // if (atoi(message) > eventCount)
-                                // {
-                                //     printf("event overflow \n");
-                                //     EventPointer = 0;
-                                // }
                                 // need check later if it is correct
-
+                                if (atoi(message) > eventCount)
+                                {
+                                    printf("event overflow \n");
+                                    EventPointer = 0;
+                                }
                                 // check if it is avaiable
-                                printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
+
+                                printf("--->kk debug: %d : %s \n", atoi(message),allEvents[EventPointer][4]);
 
                                 if (strcmp(allEvents[EventPointer][4], message) == 0)
                                 {
                                     // have that event, check if it is available
-                                    // tryTimeSlot
+                                    //tryTimeSlot
                                     childHaveEvent = true;
-                                    if (tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))
-                                        strcpy(message, "ok");
+                                    if(tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))strcpy(message, "ok");
                                     // if not ok
-                                    else
-                                        strcpy(message, "no");
+                                    else strcpy(message, "no");
                                     // say no
                                 }
                                 else
@@ -673,41 +646,29 @@ int main(int argc, char *argv[])
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
                                 {
-                                    if (childHaveEvent)
-                                    {
-                                        // passed, log it to Calender
-                                        addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
-                                    }
+                                    // passed, log it to Calender
+                                    addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                    
                                 }
-                                else if (strcmp("fail", message) == 0)
+                                else if (strcmp("pass", message))
                                 {
                                     // failed
                                     if (childHaveEvent)
                                     {
                                         // add this to rejected list
-                                        strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
+                                        strcpy(rejectID[rejectCount++],allEvents[EventPointer][4]);
+                                        
                                     }
                                 }
-                                else
-                                {
-                                    // if the respond not pass or faill it is really weird, we treate it as fail
-                                    printf("super bug not pass or fail!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-                                    strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
-                                }
-                                // tell parent this round is finished
-                                // write once////////////////////////////////////////////////////
                                 strcpy(message, name[i]);
                                 write(fd[i][1][1], message, sizeof(message));
-                                if (childHaveEvent)
-                                {
-                                    EventPointer++;
-                                }
+                                if(childHaveEvent)EventPointer++;
                                 // finished one event on parent list,
                                 // start listening
                             }
                         }
                         // child add event////////////////////////////////////////////////////
-                        // it is an add event prompt, like privatetime
+
                         else
                         {
                             addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
@@ -776,36 +737,31 @@ int main(int argc, char *argv[])
     {
         // generate ID
         char id[4];
-        if (appointmentID_A == 0 && appointmentID_B == 0)
-        {
+        if(appointmentID_A == 0 && appointmentID_B == 0){
             id[0] = appointmentID_C + '0';
             id[1] = '\0';
         }
-        else if (appointmentID_A == 0 && appointmentID_B != 0)
-        {
+        else if(appointmentID_A == 0 && appointmentID_B != 0){
             id[0] = appointmentID_B + '0';
             id[1] = appointmentID_C + '0';
             id[2] = '\0';
         }
-        else
-        {
-            id[0] = appointmentID_A + '0';
-            id[1] = appointmentID_B + '0';
-            id[2] = appointmentID_C + '0';
-            id[4] = '\0';
+        else {
+        id[0] = appointmentID_A + '0';
+        id[1] = appointmentID_B + '0';
+        id[2] = appointmentID_C + '0';
+        id[4] = '\0';
         }
 
         if (appointmentID_C < 10)
         {
             appointmentID_C++;
-            if (appointmentID_C == 10)
-            {
-                appointmentID_C = 0;
+            if(appointmentID_C==10){
+                appointmentID_C=0;
                 appointmentID_B++;
             }
-            if (appointmentID_B == 10)
-            {
-                appointmentID_B = 0;
+            if(appointmentID_B==10){
+                appointmentID_B=0;
                 appointmentID_A++;
             }
         }
@@ -1057,7 +1013,7 @@ int main(int argc, char *argv[])
             //     read buf from child (child will write sth to parent after search and reject the id)
         }
 
-        // Handle printSchd
+        // Cyrus temp testing
         else if (strcmp(command[0], "printSchd") == 0)
         {
             printf("debug: In here!!!\n");
@@ -1084,7 +1040,6 @@ int main(int argc, char *argv[])
             int childOkForCurrentEvent[userNum]; // 0 = not ok, 1 = ok
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
             {
-                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", processingEvent);
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                 {
                     // set childOkForCurrentEvent to 0
@@ -1104,6 +1059,7 @@ int main(int argc, char *argv[])
                     {
                         childOkForCurrentEvent[askingChild] = 0;
                         printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
+                        break;
                     }
                 }
                 // check if all child ok for current event
@@ -1113,27 +1069,28 @@ int main(int argc, char *argv[])
                     if (childOkForCurrentEvent[askingChild] == 0)
                     {
                         allChildOk = 0;
+                        break;
                     }
                 }
-
                 memset(buf, 0, sizeof(buf));
+                if (allChildOk)
+                {
+                    // Case of all child ok for current event
+                    strcpy(buf, "pass");
+                }
+                else
+                {
+                    // Case of any child fail to join current event
+                    strcpy(buf, "fail");
+                }
 
                 printf("parent start write pass or fail \n");
                 for (i = 0; i < userNum; i++)
                 {
-                    if (allChildOk == 1)
-                    {
-                        // Case of all child ok for current event
-                        strcpy(buf, "pass");
-                    }
-                    else
-                    {
-                        // Case of any child fail to join current event
-                        strcpy(buf, "fail");
-                    }
                     write(fd[i][0][1], buf, strlen(buf));
-                    buf_n = read(fd[i][1][0], buf, 100);
-                    buf[buf_n] = '\0';
+                    memset(buf, 0, sizeof(buf));
+                    n = read(fd[i][1][0], buf, sizeof(buf));
+                    buf[n] = '\0';
                     printf("printFCFS one turn end Reading by parent --> child %s \n", buf);
                 }
             }
@@ -1144,18 +1101,6 @@ int main(int argc, char *argv[])
                 printf("parent go to the end \n");
                 write(fd[i][0][1], buf, strlen(buf));
             }
-
-            // Print the schedule to file 
-            FILE *fpFCFS;
-            fpFCFS = fopen("schedule.txt", "w");
-
-            fprintf(fpFCFS, "%s\n", "Period: ");
-            fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
-            fprintf(fpFCFS, "\n%s\n\n", "***Appointment Schedule***");
-
-            // Close the file
-            fclose(fpFCFS);
-            printf("[Exported file: schedule.txt]\n");
         }
     }
 
