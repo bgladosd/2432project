@@ -739,6 +739,8 @@ int main(int argc, char *argv[])
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
     int startYear, endYear, startMonth, endMonth, startDay, endDay;
+    char startDayStr[12];
+    char endDayStr[12];
     // get manage request time
     for (i = 1; i < 3; i++)
     {
@@ -760,12 +762,22 @@ int main(int argc, char *argv[])
             startYear = atoi(tempY);
             startMonth = atoi(tempM);
             startDay = atoi(tempD);
+            strcpy(startDayStr, tempY);
+            strcat(startDayStr, "-");
+            strcat(startDayStr, tempM);
+            strcat(startDayStr, "-");
+            strcat(startDayStr, tempD);
         }
         else
-        {
+        {            
             endYear = atoi(tempY);
             endMonth = atoi(tempM);
             endDay = atoi(tempD);
+            strcpy(endDayStr, tempY);
+            strcat(endDayStr, "-");
+            strcat(endDayStr, tempM);
+            strcat(endDayStr, "-");
+            strcat(endDayStr, tempD);        
         }
     }
 
@@ -1591,7 +1603,9 @@ int main(int argc, char *argv[])
             FILE *fpFCFS;
             fpFCFS = fopen("schedule.txt", "w");
 
-            fprintf(fpFCFS, "%s\n", "Period: ");
+            fprintf(fpFCFS, "%s", "Period: ");
+            fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
+            
             fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
             fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
 
