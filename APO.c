@@ -1184,7 +1184,7 @@ int main(int argc, char *argv[])
                 fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", name[i], buf);
 
                 fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", "Date", "Start", "End", "Type", "People");
-                fprintf(fpFCFS, "=======================================================================================================\n", name[i], 999);
+                fprintf(fpFCFS, "=================================================================\n");
 
                 while (1)
                 {
@@ -1196,12 +1196,12 @@ int main(int argc, char *argv[])
                     }
                     // After getting each event number
                     fprintf(fpFCFS, "%s\n", buf);
+                    printf("\n=== %s, %s, %s, %s, %s ===\n", allEvents[atoi(buf)][0], allEvents[atoi(buf)][1], allEvents[atoi(buf)][2], allEvents[atoi(buf)][3], allEvents[atoi(buf)][4]);
                 }
-
-                fprintf(fpFCFS, "- End of %s's Schedule -\n", name[i], 999);
-                fprintf(fpFCFS, "=======================================================================================================\n", name[i], 999);
+                fprintf(fpFCFS, "%*s", (int)((50 + strlen(name[i])) / 2), "- End of ");
+                fprintf(fpFCFS, "%s's Schedule -\n", name[i]);
+                fprintf(fpFCFS, "=================================================================\n");
             }
-
             // Close the file
             fclose(fpFCFS);
             printf("[Exported file: schedule.txt]\n");
