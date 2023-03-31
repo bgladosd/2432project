@@ -239,13 +239,13 @@ void addEvent_projectMeeting(char projectMeeting[50][6][15], int *projectMeeting
     (*projectMeetingCount)++;
 }
 
-void addEvent_groupStudyCount(char groupStudy[50][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent_groupStudy(char groupStudy[50][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
-    strcpy(groupStudyCount[*groupStudyCount][0], eventType);
-    strcpy(groupStudyCount[*groupStudyCount][1], date);
-    strcpy(groupStudyCount[*groupStudyCount][2], time);
-    strcpy(groupStudyCount[*groupStudyCount][3], duration);
-    strcpy(groupStudyCount[*groupStudyCount][4], id);
+    strcpy(groupStudy[*groupStudyCount][0], eventType);
+    strcpy(groupStudy[*groupStudyCount][1], date);
+    strcpy(groupStudy[*groupStudyCount][2], time);
+    strcpy(groupStudy[*groupStudyCount][3], duration);
+    strcpy(groupStudy[*groupStudyCount][4], id);
     
     (*groupStudyCount)++;
 }
@@ -265,35 +265,41 @@ void combine_eventArray(char privateTime[50][6][15],char projectMeeting[50][6][1
     int i,j,pos;
     i=0;
     pos=0;
+    int total=privateTimeCount+projectMeetingCount+groupStudyCount+gatheringCount;
+    printf("debug combine_eventArray\n");
     while(i<privateTimeCount){
         for(j=0;j<5;j++){
             strcpy(clone_myEvents[i][j], privateTime[i][j]);
         }
+        i++;
     }
     pos=i;
     i=0;
     while(i<projectMeetingCount){
         for(j=0;j<5;j++){
-            strcpy(clone_myEvents[i+pos][j], projectMeeting[i+pos][j]);
+            strcpy(clone_myEvents[i+privateTimeCount][j], projectMeeting[i][j]);
         }
+        i++;
     }
     pos=i+pos;
     i=0;
     while(i<groupStudyCount){
         for(j=0;j<5;j++){
-            strcpy(clone_myEvents[i+pos][j], groupStudy[i+pos][j]);
+            strcpy(clone_myEvents[i+privateTimeCount+projectMeetingCount][j], groupStudy[i][j]);
         }
+        i++;
     }
     pos=i+pos;
     i=0;
     while(i<gatheringCount){
         for(j=0;j<5;j++){
-            strcpy(clone_myEvents[i+pos][j], gathering[i+pos][j]);
+            strcpy(clone_myEvents[i+privateTimeCount+projectMeetingCount+groupStudyCount][j], gathering[i][j]);
         }
+        i++;
     }
-    pos=i+pos;
+
     //debug
-    for(i=0;i<pos;i++){
+    for(i=0;i<total;i++){
         printf("event %d, %s %s %s %s %s \n",i,clone_myEvents[i][0],clone_myEvents[i][1],clone_myEvents[i][2],clone_myEvents[i][3],clone_myEvents[i][4]);
     }
 
@@ -863,7 +869,7 @@ int main(int argc, char *argv[])
                             }
                             else if(strcmp(command[1], "Priority" ) == 0){
                                 strcpy(message, "Starting PrintSchdTemp Priority\n");
-                                ccombine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
+                                combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
                                 schdMode=2;
                                 write(fd[i][1][1], message, sizeof(message));
                                 // clear slots before use
@@ -1030,7 +1036,7 @@ int main(int argc, char *argv[])
                             addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
                             if(strcmp(command[0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0], command[1], command[2], command[3], command[4]);
                             else if(strcmp(command[0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0], command[1], command[2], command[3], command[4]);
-                            else if(strcmp(command[0],"groupStudy")==0)addEvent_groupStudyCount(groupStudy, &groupStudyCount, command[0], command[1], command[2], command[3], command[4]);
+                            else if(strcmp(command[0],"groupStudy")==0)addEvent_groupStudy(groupStudy, &groupStudyCount, command[0], command[1], command[2], command[3], command[4]);
                             else if(strcmp(command[0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0], command[1], command[2], command[3], command[4]);
 
 
@@ -1301,10 +1307,10 @@ int main(int argc, char *argv[])
                     j++;
                 }
 
-                if(strcmp(command[0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0], command[1], command[2], command[3], command[4]);
-                else if(strcmp(command[0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0], command[1], command[2], command[3], command[4]);
-                else if(strcmp(command[0],"groupStudy")==0)addEvent_groupStudyCount(groupStudy, &groupStudyCount, command[0], command[1], command[2], command[3], command[4]);
-                else if(strcmp(command[0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0], command[1], command[2], command[3], command[4]);
+                if(strcmp(command[0][0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
+                else if(strcmp(command[0][0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
+                else if(strcmp(command[0][0],"groupStudy")==0)addEvent_groupStudy(groupStudy, &groupStudyCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
+                else if(strcmp(command[0][0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
 
                 for (i = 0; i < j; i++)
                 {
@@ -1406,6 +1412,7 @@ int main(int argc, char *argv[])
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
+            combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
@@ -1418,7 +1425,7 @@ int main(int argc, char *argv[])
                 else if (strcmp(command[0][1], "Priority") == 0)
                 {
                     strcpy(buf, "printSchd Priority");
-                    combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
+                    
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
