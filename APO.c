@@ -962,7 +962,6 @@ int main(int argc, char *argv[])
                                 write(fd[i][1][1], message, sizeof(message));
                             }
                         }
-
                         // bgladosd alternative try on the flow CHILD
                         else if (strcmp(command[0], "printSchd") == 0)
                         { // printing recorded events
@@ -1353,6 +1352,13 @@ int main(int argc, char *argv[])
                 token = strtok(NULL, " ");
             }
         }
+        
+        if (strcmp(command[0][1], "printSchd ALL"))
+        {
+            printf("it's in here\n");
+            strcpy(command[0][0],"");
+        }
+        
 
         // command index = 0 after read user input
         // input file
@@ -1362,7 +1368,6 @@ int main(int argc, char *argv[])
         }
 
         //        printf("Repeat: your command is %s \n", command); // debug
-
         // command: endProgram
         if (strcmp(command[0][0], "endProgram") == 0)
         {
@@ -1590,7 +1595,6 @@ int main(int argc, char *argv[])
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
-
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
@@ -1606,6 +1610,12 @@ int main(int argc, char *argv[])
                     schdMode = 2;
                     combine_eventArray(privateTime, projectMeeting, groupStudy, gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount, clone_allEvents);
                     strcpy(buf, "printSchd Priority");
+                }
+                else
+                {
+                    printf("don't have this scheduling algorithms, treating it as FCFS");
+                    schdMode = 1;
+                    strcpy(buf, "printSchd FCFS");
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
@@ -1788,7 +1798,7 @@ int main(int argc, char *argv[])
             fprintf(fpFCFS, "=================================================================\n");
             fprintf(fpFCFS, "\n\n%s\n", "***  Performance ***\n");
             fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
-            fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", eventIndex-rejectedCount);
+            fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", eventIndex - rejectedCount);
             fprintf(fpFCFS, "Total Number of Requests Rejected: %d\n", rejectedCount);
             fprintf(fpFCFS, "\n\n");
             fprintf(fpFCFS, "Number of Requests Accepted by Individual:\n");
