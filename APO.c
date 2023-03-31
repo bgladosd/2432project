@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <stdbool.h>
 
+
+
 // give string output First letter UP
 char *upFirstLetter(char *str)
 {
@@ -1171,7 +1173,9 @@ int main(int argc, char *argv[])
         printf("parent: Reading from child %d: %s \n", i, buf);
     }
     ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
-    int reportIndex=0;
+    int printReportHeader = 1;
+    int printAppenddoc = 0;
+    int reportIndex = 0;
     char command[200][15][20];
     int commandIndex = -1;
     char input[100];
@@ -1527,6 +1531,11 @@ int main(int argc, char *argv[])
                     strcpy(buf, "printSchd Priority");
                 }
 
+                else
+                {
+                    printf("no such scheduling algorithm");
+                }
+
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
@@ -1619,17 +1628,16 @@ int main(int argc, char *argv[])
 
             // Print the schedule to file
             FILE *fpFCFS;
-            //reportIndex
-            char reportFileName[40] ="";
-            strcpy(reportFileName,"G30_");
-            char reportNameId[10] ="";
+            // reportIndex
+            char reportFileName[40] = "";
+            strcpy(reportFileName, "G30_");
+            char reportNameId[10] = "";
             sprintf(reportNameId, "%02d", reportIndex);
-            strcat(reportFileName,reportNameId);
-            strcat(reportFileName,"_");
-            strcat(reportFileName,command[0][1]);
-            strcat(reportFileName,".txt");
+            strcat(reportFileName, reportNameId);
+            strcat(reportFileName, "_");
+            strcat(reportFileName, command[0][1]);
+            strcat(reportFileName, ".txt");
             fpFCFS = fopen(reportFileName, "w");
-            
 
             fprintf(fpFCFS, "%s", "Period: ");
             fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
@@ -1695,9 +1703,9 @@ int main(int argc, char *argv[])
             // Close the file
             fclose(fpFCFS);
 
-            //printed one file index of report plus
+            // printed one file index of report plus
             reportIndex++;
-            
+
             printf("[Exported file: schedule.txt]\n");
 
             // Handle print rejected list
@@ -1710,7 +1718,7 @@ int main(int argc, char *argv[])
             char curEventParticipants[20 * userNum + 10];
             int parti;
             for (i = 0; i < rejectedCount; i++)
-            {   
+            {
                 strcpy(curEventParticipants, "");
                 for (parti = 0; parti < userNum; parti++)
                 {
