@@ -15,82 +15,94 @@ char *upFirstLetter(char *str)
 }
 
 // pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
-void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex) {
+void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex)
+{
     int i, j;
-    if ((*commandIndex) > 0) { // index = 0 -> only one element inside
-        for (i = pullIndex; i <= *commandIndex; i++) {
-            for (j = 0; j < 15; j++) {
-                strcpy(command[i][j],command[i + 1][j]);
+    if ((*commandIndex) > 0)
+    { // index = 0 -> only one element inside
+        for (i = pullIndex; i <= *commandIndex; i++)
+        {
+            for (j = 0; j < 15; j++)
+            {
+                strcpy(command[i][j], command[i + 1][j]);
             }
         }
     }
 
     // last to null // zero element will only run this
-    for (j = 0; j < 15; j++) {
-        strcpy(command[(*commandIndex)][j],"");
+    for (j = 0; j < 15; j++)
+    {
+        strcpy(command[(*commandIndex)][j], "");
     }
-    //printf("pull, index 0 is now: %s %s\n", command[0][0], command[0][1]);
+    // printf("pull, index 0 is now: %s %s\n", command[0][0], command[0][1]);
     (*commandIndex)--;
-    //printf("index is: %d\n", *commandIndex);
+    // printf("index is: %d\n", *commandIndex);
 }
 
 // accept batch file to input command into command array
-int inputFileCommand(char command[200][15][20], int *commandIndex) {
+int inputFileCommand(char command[200][15][20], int *commandIndex)
+{
     int i, j;
     char line[300];
     char fileName[20];
-    int fileLine = 0; //count amount of line loaded
-    //printf("index: %d\n", *commandIndex);
+    int fileLine = 0; // count amount of line loaded
+    // printf("index: %d\n", *commandIndex);
     strcpy(fileName, command[*commandIndex][1]);
     fileName[strcspn(fileName, "\r\n")] = '\0';
-    //printf("index 9: '%d'\n", fileName[9]);
+    // printf("index 9: '%d'\n", fileName[9]);
     printf("opening file %s...\n", fileName);
-    //printf("filename length = %d\n", strlen(fileName));
-    // after reading command, pull array
+    // printf("filename length = %d\n", strlen(fileName));
+    //  after reading command, pull array
     pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
-    //printf("index after file pull: %d\n", commandIndex);
-    // open file
-    FILE * ifp = fopen(fileName, "r");
-    //printf("ifp = %d\n",ifp);
-    if (ifp == NULL) { // open file fail
+    // printf("index after file pull: %d\n", commandIndex);
+    //  open file
+    FILE *ifp = fopen(fileName, "r");
+    // printf("ifp = %d\n",ifp);
+    if (ifp == NULL)
+    { // open file fail
         printf("Error opening file.\n");
     }
-    else { // open file success
-        while (fgets(line, 300, ifp) != NULL) { //read every line in file
+    else
+    { // open file success
+        while (fgets(line, 300, ifp) != NULL)
+        { // read every line in file
             fileLine++;
-            (*commandIndex)++; //store in starting from index 0
+            (*commandIndex)++;                  // store in starting from index 0
             line[strcspn(line, "\r\n")] = '\0'; // assign \0, if it is \r\n
-            //printf("read: %s\n", line);
-            // split to command
+            // printf("read: %s\n", line);
+            //  split to command
             char *token;
             token = strtok(line, " ");
             i = 0;
-            while (token != NULL) //read each character in line
+            while (token != NULL) // read each character in line
             {
                 strcpy(command[*commandIndex][i], token);
-                //printf("read <----- %s\n",command[commandIndex][i]);
-                // printf("%s \n",command[i]); //debug what is input
+                // printf("read <----- %s\n",command[commandIndex][i]);
+                //  printf("%s \n",command[i]); //debug what is input
                 i++;
                 token = strtok(NULL, " ");
             }
             // if file include a command to input the file now opening, delete that line, otherwise will loop
-            if ((strcmp(command[*commandIndex][0], "inputFile") == 0) && (strcmp(command[*commandIndex][1], fileName) == 0)) {
-                printf("command[%d]: %s, %s is now deleted due to having the same file name as the opening file. \n", *commandIndex ,command[*commandIndex][0], command[*commandIndex][1]);
-                for (j = 0; j < 15; j++) {
-                    strcpy(command[*commandIndex][j],"");
+            if ((strcmp(command[*commandIndex][0], "inputFile") == 0) && (strcmp(command[*commandIndex][1], fileName) == 0))
+            {
+                printf("command[%d]: %s, %s is now deleted due to having the same file name as the opening file. \n", *commandIndex, command[*commandIndex][0], command[*commandIndex][1]);
+                for (j = 0; j < 15; j++)
+                {
+                    strcpy(command[*commandIndex][j], "");
                 }
                 fileLine--;
                 *commandIndex--;
             }
-            //printf("previous command[%d]: %s, %s\n", (*commandIndex)-1 ,command[(*commandIndex)-1][0], command[(*commandIndex)-1][1]);
-            //printf("loading command[%d]: %s, %s\n", *commandIndex ,command[*commandIndex][0], command[*commandIndex][1]);
-            if ((strcmp(command[*commandIndex][0], "inputFile") == 0)) {
+            // printf("previous command[%d]: %s, %s\n", (*commandIndex)-1 ,command[(*commandIndex)-1][0], command[(*commandIndex)-1][1]);
+            // printf("loading command[%d]: %s, %s\n", *commandIndex ,command[*commandIndex][0], command[*commandIndex][1]);
+            if ((strcmp(command[*commandIndex][0], "inputFile") == 0))
+            {
                 inputFileCommand(command, commandIndex);
             }
 
             // fprintf(file, line);
         }
-        printf("Input file %s finished. Loaded %d line(s).\n",fileName, fileLine);
+        printf("Input file %s finished. Loaded %d line(s).\n", fileName, fileLine);
     }
     // close file
     fclose(ifp);
@@ -724,6 +736,8 @@ int main(int argc, char *argv[])
     // events list for child and Parent
     //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
     char allEvents[200][5][15] = {{{0}}};
+    int rejectedList[200] = {0};
+    int rejectedCount = 0;
     char clone_allEvents[200][5][15]; // for priority schedualing
     int schdMode = -1;                // use for print schd 1 = FCFS / 2 = Priority
     char privateTime[50][6][15];
@@ -769,7 +783,7 @@ int main(int argc, char *argv[])
             strcat(startDayStr, tempD);
         }
         else
-        {            
+        {
             endYear = atoi(tempY);
             endMonth = atoi(tempM);
             endDay = atoi(tempD);
@@ -777,7 +791,7 @@ int main(int argc, char *argv[])
             strcat(endDayStr, "-");
             strcat(endDayStr, tempM);
             strcat(endDayStr, "-");
-            strcat(endDayStr, tempD);        
+            strcat(endDayStr, tempD);
         }
     }
 
@@ -1590,6 +1604,15 @@ int main(int argc, char *argv[])
                     buf[buf_n] = '\0';
                     printf("printFCFS one turn end Reading by parent --> child %s \n", buf);
                 }
+
+                // Handle add to reject list
+                if (allChildOk == 0)
+                {
+                    // Case of any child fail to join current event
+                    // add to reject list
+                    rejectedList[rejectedCount] = processingEvent;
+                    rejectedCount++;
+                }
             }
             // all process checked send End to child
             strcpy(buf, "end");
@@ -1605,7 +1628,7 @@ int main(int argc, char *argv[])
 
             fprintf(fpFCFS, "%s", "Period: ");
             fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
-            
+
             fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
             fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
 
@@ -1669,20 +1692,51 @@ int main(int argc, char *argv[])
             // Close the file
             fclose(fpFCFS);
             printf("[Exported file: schedule.txt]\n");
+
+            // Handle print rejected list
+            FILE *fpReject;
+            fpReject = fopen("rejected.dat", "w");
+
+            fprintf(fpReject, "***Rejected List***\n\n");
+            // fprintf(fpReject, "Altogether there are %d appointments rejected.\n", rejectedNum);
+            fprintf(fpFCFS, "=================================================================\n");
+            char curEventParticipants[20 * userNum + 10];
+            int parti;
+            for (i = 0; i < rejectedCount; i++)
+            {   
+                strcpy(curEventParticipants, "");
+                for (parti = 0; parti < userNum; parti++)
+                {
+                    if (strlen(allEvents[rejectedList[i]][parti]) > 0)
+                    {
+                        printf(" %s ", nameinvolved[rejectedList[i]][parti]);
+                        strcat(curEventParticipants, nameinvolved[rejectedList[i]][parti]);
+                        strcat(curEventParticipants, " ");
+                    }
+                }
+                fprintf(fpReject, "%d. %s %s %s %s %s\n", i + 1, allEvents[rejectedList[i]][0], allEvents[rejectedList[i]][1], allEvents[rejectedList[i]][2], allEvents[rejectedList[i]][3], curEventParticipants);
+            }
+            fprintf(fpFCFS, "\n");
+            fprintf(fpFCFS, "%*s", (int)((85 + strlen(nameWithCap[i])) / 2), "- End of Rejected List -\n");
+            fprintf(fpFCFS, "=================================================================\n");
+            // Close the file
+            fclose(fpReject);
         }
-        else if (strcmp(command[0][0], "inputFile") != 0){
+        else if (strcmp(command[0][0], "inputFile") != 0)
+        {
             printf("no such command.\n");
         }
 
-        //printf("index: %d\n", commandIndex);
-        // if = inputFile, have one more file command to load. if != -1, array not empty
-        if ((strcmp(command[0][0], "inputFile") != 0) && commandIndex != -1) {
-            //printf("pull, index: %d\n", commandIndex);
+        // printf("index: %d\n", commandIndex);
+        //  if = inputFile, have one more file command to load. if != -1, array not empty
+        if ((strcmp(command[0][0], "inputFile") != 0) && commandIndex != -1)
+        {
+            // printf("pull, index: %d\n", commandIndex);
             pullCommandArray(command, &commandIndex, 0); // pull out index 0, and index--
-            //printf("Repeat: your command is %s \n", command); // debug
+            // printf("Repeat: your command is %s \n", command); // debug
         }
 
-        //if (commandIndex<-1) break;
+        // if (commandIndex<-1) break;
     }
 
     // parent end process--------------------------------------------------------------------------------
