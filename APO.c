@@ -416,7 +416,7 @@ int main(int argc, char *argv[])
     char name[userNum][20];
     // events list for child and Parent
     //  myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
-    char allEvents[200][5][15];
+    char allEvents[200][5][15] = {{{0}}};
 
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
@@ -614,6 +614,15 @@ int main(int argc, char *argv[])
                                 printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
                                 if (strcmp("end", message) == 0)
                                 {
+                                    // // Cyrus make output
+                                    // for (j = 0; j < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); j++)
+                                    // {
+                                    //     if ( strcmp( FCFS_Slot[j][i][0],"empty"))
+                                    //     {
+                                    //         printf("\n it is not empyt \n");
+                                    //         printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[j][i][0], FCFS_Slot[j][i][1], FCFS_Slot[j][i][2], FCFS_Slot[j][i][3], FCFS_Slot[j][i][4]);
+                                    //     }
+                                    // }
                                     // end if first conversation is End
                                     break;
                                 }
@@ -622,7 +631,7 @@ int main(int argc, char *argv[])
                                 // if the processing event round is larger than size of child event list
                                 //
                                 // Seems like it is ok to overflow so I don't do anything first
-                                // 
+                                //
                                 // if (atoi(message) > eventCount)
                                 // {
                                 //     printf("event overflow \n");
@@ -1048,7 +1057,7 @@ int main(int argc, char *argv[])
             //     read buf from child (child will write sth to parent after search and reject the id)
         }
 
-        // Cyrus temp testing
+        // Handle printSchd
         else if (strcmp(command[0], "printSchd") == 0)
         {
             printf("debug: In here!!!\n");
@@ -1135,6 +1144,18 @@ int main(int argc, char *argv[])
                 printf("parent go to the end \n");
                 write(fd[i][0][1], buf, strlen(buf));
             }
+
+            // Print the schedule to file 
+            FILE *fpFCFS;
+            fpFCFS = fopen("schedule.txt", "w");
+
+            fprintf(fpFCFS, "%s\n", "Period: ");
+            fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
+            fprintf(fpFCFS, "\n%s\n\n", "***Appointment Schedule***");
+
+            // Close the file
+            fclose(fpFCFS);
+            printf("[Exported file: schedule.txt]\n");
         }
     }
 
