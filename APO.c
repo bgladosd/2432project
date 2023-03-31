@@ -154,13 +154,13 @@ int inputStringCommand(char command[200][15][20], int *commandIndex, char string
     printf("addCommand");
     (*commandIndex)++;
     char *token;
-    token = strtok(stringCommand," ");
+    token = strtok(stringCommand, " ");
     i = 0;
     while (token != NULL) // read each character in line
     {
         strcpy(command[*commandIndex][i], token);
         // printf("read <----- %s\n",command[commandIndex][i]);
-        printf("%s \n",command[i]); //debug what is input
+        printf("%s \n", command[i]); // debug what is input
         i++;
         token = strtok(NULL, " ");
     }
@@ -1406,12 +1406,10 @@ int main(int argc, char *argv[])
         }
         if (strcmp(command[0][0], "stringCommand") == 0)
         {
-            char stringCmd[50]="";
-            strcpy(stringCmd,"privateTime paul 20230401 1800 2.0");
-            inputStringCommand(command, &commandIndex,stringCmd);
+            char stringCmd[50] = "";
+            strcpy(stringCmd, "privateTime paul 20230401 1800 2.0");
+            inputStringCommand(command, &commandIndex, stringCmd);
         }
-
-
 
         //        printf("Repeat: your command is %s \n", command); // debug
 
@@ -1815,15 +1813,12 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+                fprintf(fpFCFS, "\n");
+                fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
+                fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
+                fprintf(fpFCFS, "=================================================================\n");
             }
-            fprintf(fpFCFS, "\n");
-            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
-            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
-            fprintf(fpFCFS, "=================================================================\n");
-            fprintf(fpFCFS, "\n");
-            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
-            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
-            fprintf(fpFCFS, "=================================================================\n");
+
             fprintf(fpFCFS, "\n\n%s\n", "***  Performance ***\n");
             fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
             fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", eventIndex - rejectedCount);
