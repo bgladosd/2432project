@@ -402,6 +402,62 @@ void doFCFS(char myEvents[][5][15], int *eventCount, char FCFS[][5][15], int *FC
     }
 }
 
+void convertEventInfoForPrint(char arr[][15], char result[][15])
+{
+    printf("%s", arr[0]);
+    printf("%s", arr[1]);
+    printf("%s", arr[2]);
+    printf("%s\n", arr[3]);
+    // Convert date format from "YYYYMMDDHHMM" to "YYYY-MM-DD"
+    char date[11];
+    strncpy(date, arr[1], 4);
+    date[4] = '-';
+    strncpy(date + 5, arr[1] + 4, 2);
+    date[7] = '-';
+    strncpy(date + 8, arr[1] + 6, 2);
+    date[10] = '\0';
+
+    // Convert time format from "HH.MM" to "HH:MM"
+    char startTime[6];
+    strncpy(startTime, arr[2], 2);
+    startTime[2] = ':';
+    strncpy(startTime + 3, arr[2] + 2, 2);
+    startTime[5] = '\0';
+
+    // Calculate end time based on start time and duration
+    int duration = atoi(arr[3]);
+    printf("Duration: %d\n", duration);
+    char startHrStr[3];
+    strncpy(startHrStr, arr[2], 2);
+    startHrStr[2] = '\0';
+    int endHour = (atoi(startHrStr) + duration) % 24;
+    char endTime[6];
+    sprintf(endTime, "%02d:%s", endHour, "00");
+
+    // Convmert event type
+    if (strcmp(arr[0], "privateTime") == 0)
+    {
+        strcpy(result[3], "Private Time");
+    }
+    else if (strcmp(arr[0], "projectMeeting") == 0)
+    {
+        strcpy(result[3], "Project Meeting");
+    }
+    else if (strcmp(arr[0], "groupStudy") == 0)
+    {
+        strcpy(result[3], "Group Study");
+    }
+    else
+    {
+        strcpy(result[3], "Gathering");
+    }
+
+    // Fill in result array
+    strcpy(result[0], date);
+    strcpy(result[1], startTime);
+    strcpy(result[2], endTime);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc > 13 || argc < 6)
@@ -415,7 +471,7 @@ int main(int argc, char *argv[])
     int userNum = argc - 3;
     char name[userNum][20];
     // events list for child and Parent
-    //  myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]bbbbbbbbbbbbbbbbbbb
+    //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
     char allEvents[200][5][15] = {{{0}}};
 
     // get date of begin and end--------------------------------------------------------------
@@ -632,12 +688,14 @@ int main(int argc, char *argv[])
                                         int numOfDaysIndex, timeSlotIndex;
                                         for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
                                         {
-                                            for (timeSlotIndex=0; timeSlotIndex<5; timeSlotIndex++){
+                                            for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
+                                            {
+                                                // Check if the time slot is empty
                                                 if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
                                                 {
-                                                    // printf("\n it is not empyt \n");
-                                                    printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
-                                                    if (strcmp(message,FCFS_Slot[numOfDaysIndex][timeSlotIndex][4])==0){
+                                                    // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                    if (strcmp(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+                                                    {
                                                         // Check if duration > 1, and already send to parent
                                                         continue;
                                                     }
@@ -1189,7 +1247,7 @@ int main(int argc, char *argv[])
                 // First time read will be the number of events child has
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
-
+                //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
                 fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", name[i], buf);
 
                 fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", "Date", "Start", "End", "Type", "People");
@@ -1203,11 +1261,20 @@ int main(int argc, char *argv[])
                     {
                         break;
                     }
-                    // After getting each event number
-                    fprintf(fpFCFS, "%s\n", buf);
-                    printf("PARENT: received event number: %s from child %d\n", buf,i);
-                    // printf("\n=== %s, %s, %s, %s, %s ===\n", allEvents[atoi(buf)][0], allEvents[atoi(buf)][1], allEvents[atoi(buf)][2], allEvents[atoi(buf)][3], allEvents[atoi(buf)][4]);
+                    // After getting each event number, retrieve the event from allEvents
+                    int allEventInedx;
+                    for (allEventInedx = 0; allEventInedx < sizeof(allEvents) / sizeof(allEvents[0]); allEventInedx++)
+                    {
+                        if (strcmp(allEvents[allEventInedx][4], buf) == 0)
+                        {
+                            char eventInfo[4][15];
+                            convertEventInfoForPrint(allEvents[allEventInedx], eventInfo);
+                            fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", eventInfo[0], eventInfo[1], eventInfo[2], eventInfo[3]);
+                            break;
+                        }
+                    }
                 }
+                fprintf(fpFCFS, "\n");
                 fprintf(fpFCFS, "%*s", (int)((50 + strlen(name[i])) / 2), "- End of ");
                 fprintf(fpFCFS, "%s's Schedule -\n", name[i]);
                 fprintf(fpFCFS, "=================================================================\n");
