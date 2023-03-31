@@ -49,12 +49,17 @@ void sortEventByPriority(char myEvents[][5][15], int eventCount)
     }
 }
 
-char *upFirstLetter(char *str)
-{
-    char *newStr = malloc(sizeof(char) * (strlen(str) + 1));
-    newStr[0] = toupper(str[0]);
-    strcpy(newStr + 1, str + 1);
-    return newStr;
+void capitalizeNames(char name[][20], char nameWithCap[][20], int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        // Copy the original name to nameWithCap
+        strcpy(nameWithCap[i], name[i]);
+
+        // If the first character is lowercase, convert to uppercase
+        if (name[i][0] >= 'a' && name[i][0] <= 'z') {
+            nameWithCap[i][0] = name[i][0] - 32;
+        }
+    }
 }
 
 int checkName(char command[20], char name[][20], int userNum)
@@ -470,6 +475,7 @@ int main(int argc, char *argv[])
 
     int userNum = argc - 3;
     char name[userNum][20];
+    char nameWithCap[userNum][20];
     // events list for child and Parent
     //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
     char allEvents[200][5][15] = {{{0}}};
@@ -517,7 +523,7 @@ int main(int argc, char *argv[])
         strcpy(name[i], argv[i + 3]);
         printf("%s \n", name[i]);
     }
-
+    capitalizeNames(name, nameWithCap, userNum);
     // Modification start from here
     int processEnd = 0;
     int pid;
@@ -1248,7 +1254,7 @@ int main(int argc, char *argv[])
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
                 //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
-                fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", name[i], buf);
+                fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", nameWithCap[i], buf);
 
                 fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", "Date", "Start", "End", "Type", "People");
                 fprintf(fpFCFS, "=================================================================\n");
@@ -1275,8 +1281,8 @@ int main(int argc, char *argv[])
                     }
                 }
                 fprintf(fpFCFS, "\n");
-                fprintf(fpFCFS, "%*s", (int)((50 + strlen(name[i])) / 2), "- End of ");
-                fprintf(fpFCFS, "%s's Schedule -\n", name[i]);
+                fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
+                fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
                 fprintf(fpFCFS, "=================================================================\n");
             }
             // Close the file
