@@ -266,6 +266,31 @@ void combine_eventArray(char privateTime[50][6][15],char projectMeeting[50][6][1
     i=0;
     pos=0;
     int total=privateTimeCount+projectMeetingCount+groupStudyCount+gatheringCount;
+
+    printf("debug before combine_eventArray\n");
+    while(i<privateTimeCount){
+        printf("event %d, %s %s %s %s %s \n",i,privateTime[i][0],privateTime[i][1],privateTime[i][2],privateTime[i][3],privateTime[i][4]);
+        i++;
+    }
+    i=0;
+    while(i<projectMeetingCount){
+        printf("event %d, %s %s %s %s %s \n",i,projectMeeting[i][0],projectMeeting[i][1],projectMeeting[i][2],projectMeeting[i][3],projectMeeting[i][4]);
+        i++;
+    }
+    i=0;
+    while(i<groupStudyCount){
+        printf("event %d, %s %s %s %s %s \n",i,groupStudy[i][0],groupStudy[i][1],groupStudy[i][2],groupStudy[i][3],groupStudy[i][4]);
+        i++;
+    }
+    i=0;
+    while(i<gatheringCount){
+        printf("event %d, %s %s %s %s %s \n",i,gathering[i][0],gathering[i][1],gathering[i][2],gathering[i][3],gathering[i][4]);
+        i++;
+    }
+    i=0;
+
+
+
     printf("debug combine_eventArray\n");
     while(i<privateTimeCount){
         for(j=0;j<5;j++){
@@ -784,6 +809,9 @@ int main(int argc, char *argv[])
             char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
             char Priority_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
             
+            //performance
+            
+
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -876,7 +904,8 @@ int main(int argc, char *argv[])
                                 setEmptySlots(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
                             }
 
-                            int EventPointer = 0;
+                            int EventPointer=0;
+                            
                             while (1)
                             {
 
@@ -951,9 +980,9 @@ int main(int argc, char *argv[])
                                 // need check later if it is correct
 
                                 // check if it is avaiable
-                                printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
-
-                                if (strcmp(allEvents[EventPointer][4], message) == 0)
+                                if(schdMode==1)printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
+                                else if(schdMode==2)printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), clone_allEvents[EventPointer][4], name[i]);
+                                if ((schdMode==1 && strcmp(allEvents[EventPointer][4], message) == 0) || (schdMode==2 && strcmp(clone_allEvents[EventPointer][4], message) == 0))
                                 {
                                     // have that event, check if it is available
                                     // tryTimeSlot
@@ -1104,6 +1133,12 @@ int main(int argc, char *argv[])
     fp = fopen("All_Requests.dat", "w");
     while (processEnd != 1)
     {
+        for(k=0;k<=14;k++){
+            strcpy(command[0][k],"");
+        }
+
+
+
         // generate ID
         char id[4];
         if (appointmentID_A == 0 && appointmentID_B == 0)
@@ -1223,6 +1258,8 @@ int main(int argc, char *argv[])
             }
             // store involved to array
             j = 5;
+            
+
             while (strcmp(command[0][j], "") != 0)
             {
                 child_index = checkName(command[0][1], name, userNum);
@@ -1307,13 +1344,16 @@ int main(int argc, char *argv[])
                     j++;
                 }
 
-                if(strcmp(command[0][0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
-                else if(strcmp(command[0][0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
-                else if(strcmp(command[0][0],"groupStudy")==0)addEvent_groupStudy(groupStudy, &groupStudyCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
-                else if(strcmp(command[0][0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0][0], command[0][1], command[0][2], command[0][3], command[0][4]);
+                if(strcmp(command[0][0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0][0], command[0][2], command[0][3], command[0][4], id);
+                else if(strcmp(command[0][0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0][0], command[0][2], command[0][3], command[0][4], id);
+                else if(strcmp(command[0][0],"groupStudy")==0)addEvent_groupStudy(groupStudy, &groupStudyCount, command[0][0],  command[0][2], command[0][3], command[0][4], id);
+                else if(strcmp(command[0][0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0][0], command[0][2], command[0][3], command[0][4], id);
 
-                for (i = 0; i < j; i++)
+                
+                for (i = 0; i < j-4; i++)
                 {
+                    //debug
+                    printf("number of j: %d",j);
                     for (child_index = 0; child_index < userNum; child_index++)
                     {
                         if (strcmp(involved[i], name[child_index]) == 0)
@@ -1412,7 +1452,7 @@ int main(int argc, char *argv[])
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
-            combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
+            
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
@@ -1420,10 +1460,13 @@ int main(int argc, char *argv[])
                 strcpy(buf, "printSchd");
                 if (strcmp(command[0][1], "FCFS") == 0)
                 {
+                    schdMode=1;
                     strcpy(buf, "printSchd FCFS");
                 }
                 else if (strcmp(command[0][1], "Priority") == 0)
                 {
+                    schdMode = 2;
+                    combine_eventArray(privateTime, projectMeeting, groupStudy,gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount,clone_allEvents);
                     strcpy(buf, "printSchd Priority");
                     
                 }
@@ -1443,12 +1486,15 @@ int main(int argc, char *argv[])
             int childOkForCurrentEvent[userNum]; // 0 = not ok, 1 = ok
             for (processingEvent = 0; processingEvent < eventIndex; processingEvent++)
             {
-                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", processingEvent);
+                int askingEvent=processingEvent;
+                if(schdMode==2)askingEvent=atoi(clone_allEvents[processingEvent][4]);
+                printf("Parrent asking EVENT : ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %d \n", askingEvent);
+        
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                 {
                     // set childOkForCurrentEvent to 0
                     childOkForCurrentEvent[askingChild] = 0;
-                    sprintf(eventNumStr, "%d", processingEvent);
+                    sprintf(eventNumStr, "%d", askingEvent);
                     memset(buf, 0, sizeof(buf));
                     strcpy(buf, eventNumStr);
                     write(fd[askingChild][0][1], buf, strlen(buf));
