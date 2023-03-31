@@ -1,0 +1,2 @@
+inputFile input.txt
+endProgram

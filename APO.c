@@ -5,14 +5,25 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-typedef struct
-{
-    char type[15];
-    char name[10][20];
-    char date[9];
-    int time;
-    float duration;
-} Event;
+// pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
+void pullCommandArray(char command[][15][20], int *commandIndex) {
+    int i, j;
+    if ((*commandIndex) > 0) { // index = 0 -> only one element inside
+        for (i = 0; i <= *commandIndex; i++) {
+            for (j = 0; j < 15; j++) {
+                strcpy(command[i][j],command[i + 1][j]);
+            }
+        }
+    }
+
+    // last to null // zero element will only run this
+    for (j = 0; j < 15; j++) {
+        strcpy(command[(*commandIndex)][j],"");
+    }
+    //printf("pull, index 0 is now: %s %s\n", command[0][0], command[0][1]);
+    (*commandIndex)--;
+    //printf("index is: %d\n", *commandIndex);
+}
 
 void sortEventByPriority(char myEvents[][5][15], int eventCount)
 {
@@ -848,7 +859,8 @@ int main(int argc, char *argv[])
         printf("parent: Reading from child %d: %s \n", i, buf);
     }
     ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
-    char command[15][20];
+    char command[200][15][20];
+    int commandIndex = -1;
     char input[100];
 
     // char allEvents[200][5][15]; moved up make all child also use this
@@ -915,35 +927,46 @@ int main(int argc, char *argv[])
         }
         */
         // clear command before input
+        /*should be cleared in pullCommandArray
         for (i = 0; i <= 14; i++)
         {
             strcpy(command[i], "");
         }
+        */
 
-        // read input from keyboard
-        printf("Please enter appointment: \n");
-        fgets(input, sizeof(input), stdin);
-        input[strcspn(input, "\n")] = 0;
+        // if command index = -1 , read input, else run command
+        if (commandIndex == -1) {
+            // read input from keyboard
+            printf("Please enter appointment: \n");
+            fgets(input, sizeof(input), stdin);
+            input[strcspn(input, "\n")] = 0;
 
-        // write user input into file
-        fprintf(fp, "%s\n", input);
+            // write user input into file
+            fprintf(fp, "%s\n", input);
 
-        // spilt by space and store into token
-        char *token;
-        token = strtok(input, " ");
-        i = 0;
-        while (token != NULL)
-        {
-            strcpy(command[i], token);
-            // printf("%s \n",command[i]); //debug what is input
-            i++;
-            token = strtok(NULL, " ");
+            // spilt by space and store into token
+            char *token;
+            token = strtok(input, " ");
+            i = 0;
+            while (token != NULL)
+            {
+                strcpy(command[0][i], token);
+                // printf("%s \n",command[i]); //debug what is input
+                i++;
+                token = strtok(NULL, " ");
+            }
+        }
+
+        // command index = 0 after read user input
+        // input file
+        if (strcmp(command[0][0], "inputFile") == 0) {
+            inputFileCommand(command, &commandIndex);
         }
 
         //        printf("Repeat: your command is %s \n", command); // debug
 
         // command: endProgram
-        if (strcmp(command[0], "endProgram") == 0)
+        if (strcmp(command[0][0], "endProgram") == 0)
         {
 
             for (i = 0; i < userNum; i++)
@@ -959,32 +982,32 @@ int main(int argc, char *argv[])
         }
         // ----------------new implement
         // parent add event
-        else if (strcmp(command[0], "privateTime") == 0 || strcmp(command[0], "projectMeeting") == 0 || strcmp(command[0], "groupStudy") == 0 || strcmp(command[0], "gathering") == 0)
+        else if (strcmp(command[0][0], "privateTime") == 0 || strcmp(command[0][0], "projectMeeting") == 0 || strcmp(command[0][0], "groupStudy") == 0 || strcmp(command[0][0], "gathering") == 0)
         {
             // char involved[10][20]; // store who involved the event
 
             // check data valid or not
             int isValid = 1;
             // check name exist and name index
-            int child_index = checkName(command[1], name, userNum);
+            int child_index = checkName(command[0][1], name, userNum);
             if (child_index == -1)
             {
                 isValid = 0;
-                printf("No such name %s!\n", command[1]);
+                printf("No such name %s!\n", command[0][1]);
             }
             // store involved to array
             j = 5;
-            while (strcmp(command[j], "") != 0)
+            while (strcmp(command[0][j], "") != 0)
             {
-                child_index = checkName(command[1], name, userNum);
+                child_index = checkName(command[0][1], name, userNum);
                 if (child_index > -1)
                 {
-                    strcpy(nameinvolved[eventIndex][j - 4], command[j]);
+                    strcpy(nameinvolved[eventIndex][j - 4], command[0][j]);
                 }
                 else
                 {
                     isValid = 0;
-                    printf("No such name %s!\n", command[j]);
+                    printf("No such name %s!\n", command[0][j]);
                 }
                 j++;
             }
@@ -993,30 +1016,30 @@ int main(int argc, char *argv[])
             char tempM[3];
             char tempD[3];
             for (j = 0; j <= 3; j++)
-                tempY[j] = command[2][j];
+                tempY[j] = command[0][2][j];
             for (j = 4; j <= 5; j++)
-                tempM[j - 4] = command[2][j];
+                tempM[j - 4] = command[0][2][j];
             for (j = 6; j <= 7; j++)
-                tempD[j - 6] = command[2][j];
+                tempD[j - 6] = command[0][2][j];
             int tempYear = atoi(tempY);
             int tempMonth = atoi(tempM);
             int tempDay = atoi(tempD);
             if (!(tempYear >= startYear && tempYear <= endYear && tempMonth >= startMonth && tempMonth <= endMonth && tempDay >= startDay && tempDay <= endDay))
             {
                 isValid = 0;
-                printf("Date %s is out of the range.\n", command[2]);
+                printf("Date %s is out of the range.\n", command[0][2]);
             }
             // check start time
-            if (!(strcmp(command[3], "1800") == 0 || strcmp(command[3], "1900") == 0 || strcmp(command[3], "2000") == 0 || strcmp(command[3], "2100") == 0 || strcmp(command[3], "2200") == 0))
+            if (!(strcmp(command[0][3], "1800") == 0 || strcmp(command[0][3], "1900") == 0 || strcmp(command[0][3], "2000") == 0 || strcmp(command[0][3], "2100") == 0 || strcmp(command[0][3], "2200") == 0))
             {
                 isValid = 0;
-                printf("Time %d is out of the range.\n", command[3]);
+                printf("Time %d is out of the range.\n", command[0][3]);
             }
-            float tempDuration = atof(command[4]);
+            float tempDuration = atof(command[0][4]);
             if (tempDuration > 5.0 || tempDuration < 0.0)
             {
                 isValid = 0;
-                printf("Duration %d is not in the range.\n", command[4]);
+                printf("Duration %d is not in the range.\n", command[0][4]);
             }
 
             if (isValid == 1)
@@ -1025,13 +1048,13 @@ int main(int argc, char *argv[])
                 char idString[4];
                 sprintf(idString, "%d", eventIndex);
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
-                addEvent(allEvents, &eventIndex, command[0], command[2], command[3], command[4], idString);
+                addEvent(allEvents, &eventIndex, command[0][0], command[0][2], command[0][3], command[0][4], idString);
                 // add to name involved array
-                strcpy(nameinvolved[eventIndex][0], command[1]);
+                strcpy(nameinvolved[eventIndex][0], command[0][1]);
                 j = 5;
-                while (strcmp(command[j], "") != 0)
+                while (strcmp(command[0][j], "") != 0)
                 {
-                    strcpy(nameinvolved[eventIndex][j - 4], command[j]);
+                    strcpy(nameinvolved[eventIndex][j - 4], command[0][j]);
                     j++;
                 }
                 printf("parent add\n");
@@ -1040,21 +1063,21 @@ int main(int argc, char *argv[])
                 char involved[10][20]; // store who involved the event
                 char cat_string[100];
                 strcpy(cat_string, "");         // clear buf
-                strcat(cat_string, command[0]); // command type
+                strcat(cat_string, command[0][0]); // command type
                 strcat(cat_string, " ");
-                strcat(cat_string, command[2]); // date
+                strcat(cat_string, command[0][2]); // date
                 strcat(cat_string, " ");
-                strcat(cat_string, command[3]); // start time
+                strcat(cat_string, command[0][3]); // start time
                 strcat(cat_string, " ");
-                strcat(cat_string, command[4]); // duartion
+                strcat(cat_string, command[0][4]); // duartion
                 strcat(cat_string, " ");
                 strcat(cat_string, id); // id
 
-                strcpy(involved[0], command[1]);
+                strcpy(involved[0], command[0][1]);
                 j = 5;
-                while (strcmp(command[j], "") != 0)
+                while (strcmp(command[0][j], "") != 0)
                 {
-                    strcpy(involved[j - 4], command[j]);
+                    strcpy(involved[j - 4], command[0][j]);
                     j++;
                 }
 
@@ -1079,14 +1102,14 @@ int main(int argc, char *argv[])
         }
 
         // command: printEvent For debug
-        else if (strcmp(command[0], "printEvent") == 0)
+        else if (strcmp(command[0][0], "printEvent") == 0)
         {
 
             int child_index = -1;
             for (i = 0; i < userNum; i++)
             {
                 // Find the index of the child
-                if (strcmp(command[1], name[i]) == 0)
+                if (strcmp(command[0][1], name[i]) == 0)
                 {
                     child_index = i;
                     break;
@@ -1124,12 +1147,12 @@ int main(int argc, char *argv[])
             // }
         }
         // delete later old
-        else if (strcmp(command[0], "printSchdzxc") == 0)
+        else if (strcmp(command[0][0], "printSchdzxc") == 0)
         {
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
             {
-                if (strcmp(command[1], "FCFS") == 0)
+                if (strcmp(command[0][1], "FCFS") == 0)
                 {
                     strcpy(buf, "printSchd FCFS");
                 }
@@ -1150,14 +1173,14 @@ int main(int argc, char *argv[])
         }
 
         // Handle printSchd
-        else if (strcmp(command[0], "printSchd") == 0)
+        else if (strcmp(command[0][0], "printSchd") == 0)
         {
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
             {
                 strcpy(buf, "printSchd");
-                if (strcmp(command[1], "FCFS") == 0)
+                if (strcmp(command[0][1], "FCFS") == 0)
                 {
                     strcpy(buf, "printSchd FCFS");
                 }
@@ -1289,6 +1312,16 @@ int main(int argc, char *argv[])
             fclose(fpFCFS);
             printf("[Exported file: schedule.txt]\n");
         }
+        else {
+            printf("no such command.\n");
+        }
+
+        //printf("index: %d\n", commandIndex);
+        // if = inputFile, have one more file command to load. if != -1, array not empty
+        if ((strcmp(command[0][0], "inputFile") != 0) && commandIndex != -1) {
+            pullCommandArray(command, &commandIndex); // pull out index 0, and index--
+        }
+        //if (commandIndex<-1) break;
     }
 
     // parent end process--------------------------------------------------------------------------------
