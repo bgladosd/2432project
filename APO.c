@@ -584,14 +584,7 @@ int main(int argc, char *argv[])
 
                         // bgladosd alternative try on the flow CHILD
                         else if (strcmp(command[0], "printSchd") == 0)
-                        { // printing recorded events
-                            // printf("debug: check FCFS \n");
-                            // if (strcmp(command[1], "FCFS") == 0)
-                            // {
-                            //     // doFCFS(myEvents, &eventCount, FCFS, &FCFSCount, i, &rejectCount, rejectID);
-                            //     strcpy(message, "-> [printSchd FCFS done] \n");
-                            //     write(fd[i][1][1], message, sizeof(message));
-                            // }
+                        { 
                             strcpy(message, "Starting PrintSchdTemp \n");
                             write(fd[i][1][1], message, sizeof(message));
                             // clear slots before use
@@ -664,9 +657,9 @@ int main(int argc, char *argv[])
                                 // should receive pass or fail
                                 if (strcmp("pass", message) == 0)
                                 {
+                                    // passed, log it to Calender
                                     if (childHaveEvent)
                                     {
-                                        // passed, log it to Calender
                                         addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
                                     }
                                 }
