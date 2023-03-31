@@ -14,6 +14,17 @@ char *upFirstLetter(char *str)
     return newStr;
 }
 
+// check if string is only space
+int isOnlySpace(char* str) {
+    while (*str) {
+        if (!isspace(*str)) {
+            return 0;
+        }
+        str++;
+    }
+    return 1;
+}
+
 // pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
 void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex)
 {
@@ -1703,7 +1714,7 @@ int main(int argc, char *argv[])
                             convertEventInfoForPrint(allEvents[allEventInedx], eventInfo);
                             for (parti = 0; parti < userNum; parti++)
                             {
-                                if (strlen(allEvents[allEventInedx][parti]) > 0)
+                                if (strlen(allEvents[allEventInedx][parti]) > 1)
                                 {
                                     if (strcmp(nameinvolved[allEventInedx][parti], name[i]) == 0)
                                         continue;
@@ -1711,8 +1722,7 @@ int main(int argc, char *argv[])
                                     strcat(curEventParticipants, " ");
                                 }
                             }
-                            // if (strlen(strcpy(curEventParticipants, "")))
-                            // printf("Parit: %s\n", nameinvolved[allEventInedx][1]);
+                            if (isOnlySpace(curEventParticipants)) strcpy(curEventParticipants, "-");
                             fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", eventInfo[0], eventInfo[1], eventInfo[2], eventInfo[3], curEventParticipants);
                             break;
                         }
