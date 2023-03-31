@@ -81,10 +81,40 @@ int inputFileCommand(char command[200][15][20], int *commandIndex) {
     fclose(ifp);
 }
 
+void cloneEvent(char allmyEvents[][5][15],char clone_myEvents[][5][15],int eventCount)
+{
+    int arrayLength = eventCount;
+    int i,j;
+    for(i = 0; i < arrayLength; i++)
+    {
+        for(j = 0; j <5 ; j++)
+        {
+            strcpy(clone_myEvents[i][j],allmyEvents[i][j]);
+        }
+    }
+
+    
+    for(i=0;i<eventCount;i++){
+        printf("debug before: %s %s %s %s %s \n",allmyEvents[i][0],allmyEvents[i][1],allmyEvents[i][2],allmyEvents[i][3],allmyEvents[i][4]);
+    }
+
+
+    for(i=0;i<eventCount;i++){
+        printf("debug cloneEvents: %s %s %s %s %s \n",clone_myEvents[i][0],clone_myEvents[i][1],clone_myEvents[i][2],clone_myEvents[i][3],clone_myEvents[i][4]);
+    }
+    
+
+}
+
 void sortEventByPriority(char myEvents[][5][15], int eventCount)
 {
     int arrayLength = eventCount;
     int i, j;
+
+    for(i=0;i<eventCount;i++){
+        printf("debug before sort: %s %s %s %s %s \n",myEvents[i][0],myEvents[i][1],myEvents[i][2],myEvents[i][3],myEvents[i][4]);
+    }
+
     for (i = 0; i < arrayLength - 1; i++)
     {
         for (j = 0; j < arrayLength - i - 1; j++)
@@ -114,6 +144,11 @@ void sortEventByPriority(char myEvents[][5][15], int eventCount)
             }
         }
     }
+
+    for(i=0;i<eventCount;i++){
+        printf("debug sortEvents: %s %s %s %s %s \n",myEvents[i][0],myEvents[i][1],myEvents[i][2],myEvents[i][3],myEvents[i][4]);
+    }
+
 }
 
 void capitalizeNames(char name[][20], char nameWithCap[][20], int size) {
@@ -546,6 +581,8 @@ int main(int argc, char *argv[])
     // events list for child and Parent
     //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
     char allEvents[200][5][15] = {{{0}}};
+    char clone_allEvents[200][5][15]; // for priority schedualing
+    int schdMode = -1; // use for print schd 1 = FCFS / 2 = Priority
 
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
@@ -645,7 +682,7 @@ int main(int argc, char *argv[])
             char FCFS[200][5][15];
             char rejectID[200][4];
             char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
-
+            char Priority_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -721,10 +758,24 @@ int main(int argc, char *argv[])
                             //     strcpy(message, "-> [printSchd FCFS done] \n");
                             //     write(fd[i][1][1], message, sizeof(message));
                             // }
-                            strcpy(message, "Starting PrintSchdTemp \n");
-                            write(fd[i][1][1], message, sizeof(message));
-                            // clear slots before use
-                            setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
+                            schdMode=-1;
+                            if(strcmp(command[1], "FCFS" ) == 0){
+                                strcpy(message, "Starting PrintSchdTemp FCFS\n");
+                                schdMode=1;
+                                write(fd[i][1][1], message, sizeof(message));
+                                // clear slots before use
+                                setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
+                            }
+                            else if(strcmp(command[1], "Priority" ) == 0){
+                                strcpy(message, "Starting PrintSchdTemp Priority\n");
+                                cloneEvent(allEvents,clone_allEvents,eventCount);
+                                sortEventByPriority(clone_allEvents,eventCount);
+                                schdMode=2;
+                                write(fd[i][1][1], message, sizeof(message));
+                                // clear slots before use
+                                setEmptySlots(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
+                            }
+
                             int EventPointer = 0;
                             while (1)
                             {
@@ -763,6 +814,7 @@ int main(int argc, char *argv[])
                                         {
                                             for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
                                             {
+
                                                 // Check if the time slot is empty
                                                 if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
                                                 {
@@ -806,12 +858,18 @@ int main(int argc, char *argv[])
                                     // have that event, check if it is available
                                     // tryTimeSlot
                                     childHaveEvent = true;
-                                    if (tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))
+                                    if(schdMode==1){ // if not ok say no
+                                        if (tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))
                                         strcpy(message, "ok");
-                                    // if not ok
-                                    else
+                                        else
                                         strcpy(message, "no");
-                                    // say no
+                                    }
+                                    else if(schdMode==2){
+                                        if (tryTimeSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay))
+                                        strcpy(message, "ok");
+                                        else
+                                        strcpy(message, "no");
+                                    }
                                 }
                                 else
                                 {
@@ -835,7 +893,12 @@ int main(int argc, char *argv[])
                                     if (childHaveEvent)
                                     {
                                         // passed, log it to Calender
-                                        addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                        if(schdMode==1){
+                                            addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                        }
+                                        else if(schdMode==2){
+                                            addSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay);
+                                        }
                                         childRealEventCount++;
                                     }
                                 }
@@ -1212,11 +1275,18 @@ int main(int argc, char *argv[])
                 {
                     strcpy(buf, "printSchd FCFS");
                 }
+                else if (strcmp(command[0][1], "Priority") == 0)
+                {
+                    strcpy(buf, "printSchd Priority");
+                    schdMode = 2;
+                    cloneEvent(allEvents,clone_allEvents,atoi(id)-1);
+                    sortEventByPriority(clone_allEvents,atoi(id)-1);
+
+                }
 
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
-
                 // buf read from child should be id of reject event
                 // strcat the id
             }
@@ -1240,11 +1310,16 @@ int main(int argc, char *argv[])
                 {
                     strcpy(buf, "printSchd FCFS");
                 }
+                else if (strcmp(command[0][1], "Priority") == 0)
+                {
+                    strcpy(buf, "printSchd Priority");
+                }
 
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
-                printf("printFCFS START Reading by parent --> child %s \n", buf);
+                if(schdMode==1)printf("printFCFS START Reading by parent --> child %s \n", buf);
+                else if(schdMode==2)printf("printPriority START Reading by parent --> child %s \n", buf);
 
                 // buf read from child should be id of reject event
                 // strcat the id
