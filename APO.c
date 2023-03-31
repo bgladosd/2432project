@@ -627,14 +627,23 @@ int main(int argc, char *argv[])
                                         write(fd[i][1][1], message, sizeof(message));
 
                                         // After sending the real event count, send the real event ID
-                                        for (j = 0; j < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); j++)
+                                        // Resst message
+                                        memset(message, 0, sizeof(message));
+                                        int numOfDaysIndex, timeSlotIndex;
+                                        for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
                                         {
-                                            if (strcmp(FCFS_Slot[j][i][0], "empty"))
-                                            {
-                                                printf("\n it is not empyt \n");
-                                                // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[j][i][0], FCFS_Slot[j][i][1], FCFS_Slot[j][i][2], FCFS_Slot[j][i][3], FCFS_Slot[j][i][4]);
-                                                strcpy(message, FCFS_Slot[j][i][4]); // Event ID
-                                                write(fd[i][1][1], message, sizeof(message));
+                                            for (timeSlotIndex=0; timeSlotIndex<5; timeSlotIndex++){
+                                                if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
+                                                {
+                                                    // printf("\n it is not empyt \n");
+                                                    printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                    if (strcmp(message,FCFS_Slot[numOfDaysIndex][timeSlotIndex][4])==0){
+                                                        // Check if duration > 1, and already send to parent
+                                                        continue;
+                                                    }
+                                                    strcpy(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
+                                                    write(fd[i][1][1], message, sizeof(message));
+                                                }
                                             }
                                         }
 
@@ -1196,7 +1205,8 @@ int main(int argc, char *argv[])
                     }
                     // After getting each event number
                     fprintf(fpFCFS, "%s\n", buf);
-                    printf("\n=== %s, %s, %s, %s, %s ===\n", allEvents[atoi(buf)][0], allEvents[atoi(buf)][1], allEvents[atoi(buf)][2], allEvents[atoi(buf)][3], allEvents[atoi(buf)][4]);
+                    printf("PARENT: received event number: %s from child %d\n", buf,i);
+                    // printf("\n=== %s, %s, %s, %s, %s ===\n", allEvents[atoi(buf)][0], allEvents[atoi(buf)][1], allEvents[atoi(buf)][2], allEvents[atoi(buf)][3], allEvents[atoi(buf)][4]);
                 }
                 fprintf(fpFCFS, "%*s", (int)((50 + strlen(name[i])) / 2), "- End of ");
                 fprintf(fpFCFS, "%s's Schedule -\n", name[i]);
