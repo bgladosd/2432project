@@ -756,6 +756,8 @@ void convertEventInfoForPrint(char arr[][15], char result[][15])
 
 int main(int argc, char *argv[])
 {
+    int SPECIAL_CASE = 0;
+    char SPECIAL_USER_INPUT[50];
     if (argc > 13 || argc < 6)
     {
         printf("The range of user should be 3 to 10, make sure no space in user name! \n");
@@ -951,17 +953,6 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printEvent done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-                        // delete later
-                        else if (strcmp(command[0], "printSchdasdasdasd") == 0)
-                        { // printing recorded events
-                            // printf("debug: check FCFS \n");
-                            if (strcmp(command[1], "FCFS") == 0)
-                            {
-                                doFCFS(allEvents, &eventCount, FCFS, &FCFSCount, i, &rejectCount, rejectID);
-                                strcpy(message, "-> [printSchd FCFS done] \n");
-                                write(fd[i][1][1], message, sizeof(message));
-                            }
-                        }
                         // bgladosd alternative try on the flow CHILD
                         else if (strcmp(command[0], "printSchd") == 0)
                         { // printing recorded events
@@ -973,6 +964,8 @@ int main(int argc, char *argv[])
                             //     write(fd[i][1][1], message, sizeof(message));
                             // }
                             schdMode = -1;
+                            printf("++++++++++++++++++++++%s", command[0]);
+                            printf("++++++++++++++++++++++%s", command[1]);
                             if (strcmp(command[1], "FCFS") == 0)
                             {
                                 strcpy(message, "Starting PrintSchdTemp FCFS\n");
@@ -990,207 +983,223 @@ int main(int argc, char *argv[])
                                 // clear slots before use
                                 setEmptySlots(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
                             }
+                            else if (strcmp(command[0], "printSchd All") == 0)
+                            {
+                                printf("IN THIS CASE!!!!!!!!!!!!!!!!!\n");
+                                //     SPECIAL_CASE = 1;
+                                //     strcpy(SPECIAL_USER_INPUT, "PrintSchd Priority");
+                                //     strcpy(message, "Starting PrintSchdTemp Priority\n");
+                                //     strcpy(message, "Starting PrintSchdTemp FCFS\n");
+                                //     schdMode = 1;
+                                //     write(fd[i][1][1], message, sizeof(message));
+                                //     // clear slots before use
+                                //     setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
+                            }
 
-                            int EventPointer = 0;
-
-                            while (1)
+                            if (schdMode != -1)
                             {
 
-                                bool childHaveEvent = false;
-                                // child printSCHD confirmed and START
+                                int EventPointer = 0;
 
-                                // read once/////////////////////////////////////////////
-                                memset(message, 0, sizeof(message));
-                                n = read(fd[i][0][0], message, sizeof(message));
-                                if (n <= 0)
-                                    break; // EOF or error
-                                message[n] = '\0';
-
-                                printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
-                                if (strcmp("end", message) == 0)
+                                while (1)
                                 {
+
+                                    bool childHaveEvent = false;
+                                    // child printSCHD confirmed and START
+
+                                    // read once/////////////////////////////////////////////
                                     memset(message, 0, sizeof(message));
                                     n = read(fd[i][0][0], message, sizeof(message));
                                     if (n <= 0)
                                         break; // EOF or error
                                     message[n] = '\0';
-                                    // Handle parent request of getting reil event ID
-                                    if (strcmp("getRealEventId", message) == 0)
-                                    {
-                                        char childRealEventCountStr[5];
-                                        sprintf(childRealEventCountStr, "%d", childRealEventCount);
-                                        strcpy(message, childRealEventCountStr);
-                                        write(fd[i][1][1], message, sizeof(message));
 
-                                        // After sending the real event count, send the real event ID
-                                        // Resst message
+                                    printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
+                                    if (strcmp("end", message) == 0)
+                                    {
                                         memset(message, 0, sizeof(message));
-                                        int numOfDaysIndex, timeSlotIndex;
-
-                                        if (schdMode == 1)
+                                        n = read(fd[i][0][0], message, sizeof(message));
+                                        if (n <= 0)
+                                            break; // EOF or error
+                                        message[n] = '\0';
+                                        // Handle parent request of getting reil event ID
+                                        if (strcmp("getRealEventId", message) == 0)
                                         {
-                                            for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
-                                            {
-                                                for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
-                                                {
+                                            char childRealEventCountStr[5];
+                                            sprintf(childRealEventCountStr, "%d", childRealEventCount);
+                                            strcpy(message, childRealEventCountStr);
+                                            write(fd[i][1][1], message, sizeof(message));
 
-                                                    // Check if the time slot is empty
-                                                    if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
+                                            // After sending the real event count, send the real event ID
+                                            // Resst message
+                                            memset(message, 0, sizeof(message));
+                                            int numOfDaysIndex, timeSlotIndex;
+
+                                            if (schdMode == 1)
+                                            {
+                                                for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
+                                                {
+                                                    for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
                                                     {
-                                                        // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
-                                                        if (strcmp(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+
+                                                        // Check if the time slot is empty
+                                                        if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
                                                         {
-                                                            // Check if duration > 1, and already send to parent
-                                                            continue;
+                                                            // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                            if (strcmp(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+                                                            {
+                                                                // Check if duration > 1, and already send to parent
+                                                                continue;
+                                                            }
+                                                            strcpy(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
+                                                            write(fd[i][1][1], message, sizeof(message));
                                                         }
-                                                        strcpy(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
-                                                        write(fd[i][1][1], message, sizeof(message));
                                                     }
                                                 }
+
+                                                // After printing all the events in the child, send the endRealEventId message
+                                                strcpy(message, "endRealEventId");
+                                                write(fd[i][1][1], message, sizeof(message));
+
+                                                float util = utilizationCal(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
+                                                char utilStr[50];
+                                                sprintf(utilStr, "%g", util);
+                                                strcpy(message, utilStr);
+                                                write(fd[i][1][1], message, sizeof(message));
                                             }
-
-                                            // After printing all the events in the child, send the endRealEventId message
-                                            strcpy(message, "endRealEventId");
-                                            write(fd[i][1][1], message, sizeof(message));
-
-                                            float util = utilizationCal(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
-                                            char utilStr[50];
-                                            sprintf(utilStr, "%g", util);
-                                            strcpy(message, utilStr);
-                                            write(fd[i][1][1], message, sizeof(message));
-                                        }
-                                        else if (schdMode == 2)
-                                        {
-                                            for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(Priority_Slot) / sizeof(Priority_Slot[0]); numOfDaysIndex++)
+                                            else if (schdMode == 2)
                                             {
-                                                for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
+                                                for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(Priority_Slot) / sizeof(Priority_Slot[0]); numOfDaysIndex++)
                                                 {
-
-                                                    // Check if the time slot is empty
-                                                    if (strcmp(Priority_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
+                                                    for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
                                                     {
-                                                        // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, Priority_Slot[numOfDaysIndex][timeSlotIndex][0], Priority_Slot[numOfDaysIndex][timeSlotIndex][1], Priority_Slot[numOfDaysIndex][timeSlotIndex][2], Priority_Slot[numOfDaysIndex][timeSlotIndex][3], Priority_Slot[numOfDaysIndex][timeSlotIndex][4]);
-                                                        if (strcmp(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+
+                                                        // Check if the time slot is empty
+                                                        if (strcmp(Priority_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
                                                         {
-                                                            // Check if duration > 1, and already send to parent
-                                                            continue;
+                                                            // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, Priority_Slot[numOfDaysIndex][timeSlotIndex][0], Priority_Slot[numOfDaysIndex][timeSlotIndex][1], Priority_Slot[numOfDaysIndex][timeSlotIndex][2], Priority_Slot[numOfDaysIndex][timeSlotIndex][3], Priority_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                            if (strcmp(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+                                                            {
+                                                                // Check if duration > 1, and already send to parent
+                                                                continue;
+                                                            }
+                                                            strcpy(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
+                                                            write(fd[i][1][1], message, sizeof(message));
                                                         }
-                                                        strcpy(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
-                                                        write(fd[i][1][1], message, sizeof(message));
                                                     }
                                                 }
+
+                                                // After printing all the events in the child, send the endRealEventId message
+                                                strcpy(message, "endRealEventId");
+                                                write(fd[i][1][1], message, sizeof(message));
+
+                                                float util = utilizationCal(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
+                                                char utilStr[50];
+                                                sprintf(utilStr, "%g", util);
+                                                strcpy(message, utilStr);
+                                                write(fd[i][1][1], message, sizeof(message));
                                             }
-
-                                            // After printing all the events in the child, send the endRealEventId message
-                                            strcpy(message, "endRealEventId");
-                                            write(fd[i][1][1], message, sizeof(message));
-
-                                            float util = utilizationCal(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay)) * 100;
-                                            char utilStr[50];
-                                            sprintf(utilStr, "%g", util);
-                                            strcpy(message, utilStr);
-                                            write(fd[i][1][1], message, sizeof(message));
                                         }
+                                        // end if first conversation is End
+                                        break;
                                     }
-                                    // end if first conversation is End
-                                    break;
-                                }
 
-                                // should received an ID
-                                // if the processing event round is larger than size of child event list
-                                //
-                                // Seems like it is ok to overflow so I don't do anything first
-                                //
-                                // if (atoi(message) > eventCount)
-                                // {
-                                //     printf("event overflow \n");
-                                //     EventPointer = 0;
-                                // }
-                                // need check later if it is correct
+                                    // should received an ID
+                                    // if the processing event round is larger than size of child event list
+                                    //
+                                    // Seems like it is ok to overflow so I don't do anything first
+                                    //
+                                    // if (atoi(message) > eventCount)
+                                    // {
+                                    //     printf("event overflow \n");
+                                    //     EventPointer = 0;
+                                    // }
+                                    // need check later if it is correct
 
-                                // check if it is avaiable
-                                if (schdMode == 1)
-                                    printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
-                                else if (schdMode == 2)
-                                    printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), clone_allEvents[EventPointer][4], name[i]);
-                                if ((schdMode == 1 && strcmp(allEvents[EventPointer][4], message) == 0) || (schdMode == 2 && strcmp(clone_allEvents[EventPointer][4], message) == 0))
-                                {
-                                    // have that event, check if it is available
-                                    // tryTimeSlot
-                                    childHaveEvent = true;
+                                    // check if it is avaiable
                                     if (schdMode == 1)
-                                    { // if not ok say no
-                                        if (tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))
-                                            strcpy(message, "ok");
-                                        else
-                                            strcpy(message, "no");
-                                    }
+                                        printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), allEvents[EventPointer][4], name[i]);
                                     else if (schdMode == 2)
+                                        printf("--->kk debug: Asking ID %d : Child Checking Event ID: %s : User is %s\n", atoi(message), clone_allEvents[EventPointer][4], name[i]);
+                                    if ((schdMode == 1 && strcmp(allEvents[EventPointer][4], message) == 0) || (schdMode == 2 && strcmp(clone_allEvents[EventPointer][4], message) == 0))
                                     {
-                                        if (tryTimeSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay))
-                                            strcpy(message, "ok");
-                                        else
-                                            strcpy(message, "no");
-                                    }
-                                }
-                                else
-                                {
-                                    // don't have that event say ok
-                                    strcpy(message, "ok");
-                                }
-                                // write once////////////////////////////////////////////////////
-                                write(fd[i][1][1], message, sizeof(message));
-
-                                // read once/////////////////////////////////////////////////////
-                                memset(message, 0, sizeof(message));
-                                n = read(fd[i][0][0], message, sizeof(message));
-                                if (n <= 0)
-                                    break; // EOF or error
-                                message[n] = '\0';
-                                printf("Child pass fail part: child %d received %s \n", i, message);
-
-                                // should receive pass or fail
-                                if (strcmp("pass", message) == 0)
-                                {
-                                    if (childHaveEvent)
-                                    {
-                                        // passed, log it to Calender
+                                        // have that event, check if it is available
+                                        // tryTimeSlot
+                                        childHaveEvent = true;
                                         if (schdMode == 1)
-                                        {
-                                            addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                        { // if not ok say no
+                                            if (tryTimeSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay))
+                                                strcpy(message, "ok");
+                                            else
+                                                strcpy(message, "no");
                                         }
                                         else if (schdMode == 2)
                                         {
-                                            addSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay);
+                                            if (tryTimeSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay))
+                                                strcpy(message, "ok");
+                                            else
+                                                strcpy(message, "no");
                                         }
-                                        childRealEventCount++;
                                     }
-                                }
-                                else if (strcmp("fail", message) == 0)
-                                {
-                                    // failed
-                                    if (childHaveEvent)
+                                    else
                                     {
-                                        // add this to rejected list
+                                        // don't have that event say ok
+                                        strcpy(message, "ok");
+                                    }
+                                    // write once////////////////////////////////////////////////////
+                                    write(fd[i][1][1], message, sizeof(message));
+
+                                    // read once/////////////////////////////////////////////////////
+                                    memset(message, 0, sizeof(message));
+                                    n = read(fd[i][0][0], message, sizeof(message));
+                                    if (n <= 0)
+                                        break; // EOF or error
+                                    message[n] = '\0';
+                                    printf("Child pass fail part: child %d received %s \n", i, message);
+
+                                    // should receive pass or fail
+                                    if (strcmp("pass", message) == 0)
+                                    {
+                                        if (childHaveEvent)
+                                        {
+                                            // passed, log it to Calender
+                                            if (schdMode == 1)
+                                            {
+                                                addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                            }
+                                            else if (schdMode == 2)
+                                            {
+                                                addSlot(clone_allEvents[EventPointer], Priority_Slot, argv[1], startYear, startMonth, startDay);
+                                            }
+                                            childRealEventCount++;
+                                        }
+                                    }
+                                    else if (strcmp("fail", message) == 0)
+                                    {
+                                        // failed
+                                        if (childHaveEvent)
+                                        {
+                                            // add this to rejected list
+                                            strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // if the respond not pass or faill it is really weird, we treate it as fail
+                                        printf("super bug not pass or fail!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
                                         strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
                                     }
+                                    // tell parent this round is finished
+                                    // write once////////////////////////////////////////////////////
+                                    strcpy(message, name[i]);
+                                    write(fd[i][1][1], message, sizeof(message));
+                                    if (childHaveEvent)
+                                    {
+                                        EventPointer++;
+                                    }
+                                    // finished one event on parent list,
+                                    // start listening
                                 }
-                                else
-                                {
-                                    // if the respond not pass or faill it is really weird, we treate it as fail
-                                    printf("super bug not pass or fail!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-                                    strcpy(rejectID[rejectCount++], allEvents[EventPointer][4]);
-                                }
-                                // tell parent this round is finished
-                                // write once////////////////////////////////////////////////////
-                                strcpy(message, name[i]);
-                                write(fd[i][1][1], message, sizeof(message));
-                                if (childHaveEvent)
-                                {
-                                    EventPointer++;
-                                }
-                                // finished one event on parent list,
-                                // start listening
                             }
                         }
                         // child add event////////////////////////////////////////////////////
@@ -1331,14 +1340,26 @@ int main(int argc, char *argv[])
         // if command index = -1 , read input, else run command
         if (commandIndex == -1)
         {
-            commandIndex++;
-            // read input from keyboard
-            printf("Please enter appointment: \n");
-            fgets(input, sizeof(input), stdin);
-            input[strcspn(input, "\n")] = 0;
+            if (SPECIAL_CASE)
+            {
+                commandIndex++;
+                printf("%s\n", SPECIAL_USER_INPUT);
+                strcpy(input, SPECIAL_USER_INPUT);
+                input[strcspn(input, "\n")] = 0;
+                fprintf(fp, "%s\n", input);
+                SPECIAL_CASE=0;
+            }
+            else
+            {
+                commandIndex++;
+                // read input from keyboard
+                printf("Please enter appointment: \n");
+                fgets(input, sizeof(input), stdin);
+                input[strcspn(input, "\n")] = 0;
 
-            // write user input into file
-            fprintf(fp, "%s\n", input);
+                // write user input into file
+                fprintf(fp, "%s\n", input);
+            }
 
             // spilt by space and store into token
             char *token;
@@ -1351,14 +1372,11 @@ int main(int argc, char *argv[])
                 i++;
                 token = strtok(NULL, " ");
             }
+
+            printf("---->%s\n", command[0][0]);
+            printf("---->%d\n", strcmp(command[0][0], "printSchd"));
+            printf("---->%s\n", command[0][1]);
         }
-        
-        if (strcmp(command[0][1], "printSchd ALL"))
-        {
-            printf("it's in here\n");
-            strcpy(command[0][0],"");
-        }
-        
 
         // command index = 0 after read user input
         // input file
@@ -1368,6 +1386,7 @@ int main(int argc, char *argv[])
         }
 
         //        printf("Repeat: your command is %s \n", command); // debug
+
         // command: endProgram
         if (strcmp(command[0][0], "endProgram") == 0)
         {
@@ -1595,6 +1614,7 @@ int main(int argc, char *argv[])
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
+
             printf("debug: In here!!!\n");
             // printf("debug: send printSchd to child\n");
             for (i = 0; i < userNum; i++)
@@ -1610,12 +1630,15 @@ int main(int argc, char *argv[])
                     schdMode = 2;
                     combine_eventArray(privateTime, projectMeeting, groupStudy, gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount, clone_allEvents);
                     strcpy(buf, "printSchd Priority");
+                    SPECIAL_CASE = 0;
                 }
-                else
+                else if (strcmp(command[0][1], "All") == 0)
                 {
-                    printf("don't have this scheduling algorithms, treating it as FCFS");
+                    SPECIAL_CASE = 1;
+                    strcpy(SPECIAL_USER_INPUT, "printSchd Priority\n");
                     schdMode = 1;
                     strcpy(buf, "printSchd FCFS");
+                    printf("IN SPECIAL HANDLE CASE--------\n");
                 }
 
                 write(fd[i][0][1], buf, strlen(buf));
