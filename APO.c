@@ -1581,36 +1581,7 @@ int main(int argc, char *argv[])
             //     printf("Reading by parent --> child %d: %s \n", i, buf);
             // }
         }
-        // delete later old
-        else if (strcmp(command[0][0], "printSchdzxc") == 0)
-        {
-            // printf("debug: send printSchd to child\n");
-            for (i = 0; i < userNum; i++)
-            {
-                if (strcmp(command[0][1], "FCFS") == 0)
-                {
-                    strcpy(buf, "printSchd FCFS");
-                }
-                else if (strcmp(command[0][1], "Priority") == 0)
-                {
-                    strcpy(buf, "printSchd Priority");
-                    schdMode = 2;
-                }
-
-                write(fd[i][0][1], buf, strlen(buf));
-                buf_n = read(fd[i][1][0], buf, 100);
-                buf[buf_n] = '\0';
-                // buf read from child should be id of reject event
-                // strcat the id
-            }
-            // after all child successfully make their schedule and write reject id to parent,
-            // strtok the string of id to many id
-            // while (!=the end of token)
-            //  for each child
-            //     send id to child
-            //     read buf from child (child will write sth to parent after search and reject the id)
-        }
-
+       
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
@@ -1625,7 +1596,7 @@ int main(int argc, char *argv[])
                     schdMode = 1;
                     strcpy(buf, "printSchd FCFS");
                 }
-                else if (strcmp(command[0][1], "Priority") == 0)
+                else if (strcmp(command[0][1], "PRIORITY") == 0)
                 {
                     schdMode = 2;
                     combine_eventArray(privateTime, projectMeeting, groupStudy, gathering, privateTimeCount, projectMeetingCount, groupStudyCount, gatheringCount, clone_allEvents);
@@ -1639,7 +1610,13 @@ int main(int argc, char *argv[])
                     schdMode = 1;
                     strcpy(buf, "printSchd FCFS");
                     printf("IN SPECIAL HANDLE CASE--------\n");
+                }else
+                {
+                    printf("no such scheduling algorithms, treating it as FCFS");
+                    schdMode = 1;
+                    strcpy(buf, "printSchd FCFS");
                 }
+                
 
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
@@ -1842,7 +1819,7 @@ int main(int argc, char *argv[])
             // printed one file index of report plus
             reportIndex++;
 
-            printf("[Exported file: schedule.txt]\n");
+            printf("[Exported file: %s.txt]\n",reportFileName);
 
             // Handle print rejected list
             FILE *fpReject;
