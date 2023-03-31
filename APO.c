@@ -1724,9 +1724,9 @@ int main(int argc, char *argv[])
             fprintf(fpFCFS, "%s", "Period: ");
             fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
             if (schdMode == 1)
-                fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
+                fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS");
             else if (schdMode == 2)
-                fprintf(fpFCFS, "%s\n", "Algorithm used: Priority:");
+                fprintf(fpFCFS, "%s\n", "Algorithm used: Priority");
             fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
 
             int numOfEventUserAccepted[userNum];
