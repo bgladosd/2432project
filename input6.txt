@@ -1,0 +1,2 @@
+inputFile input4.txt
+inputFile input.txt
