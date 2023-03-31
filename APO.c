@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
             int eventCount = 0;
             int FCFSCount = 0;
             int rejectCount = 0;
-
+            int childRealEventCount = 0;
             // Array to store the events that the child participated
             char FCFS[200][5][15];
             char rejectID[200][4];
@@ -596,7 +596,6 @@ int main(int argc, char *argv[])
                             write(fd[i][1][1], message, sizeof(message));
                             // clear slots before use
                             setEmptySlots(FCFS_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
-
                             int EventPointer = 0;
                             while (1)
                             {
@@ -614,16 +613,35 @@ int main(int argc, char *argv[])
                                 printf("DEBUG printSCHD 1: Child %d: Received--> %s \n", i, message);
                                 if (strcmp("end", message) == 0)
                                 {
-                                    // // Cyrus make output
-                                    // for (j = 0; j < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); j++)
-                                    // {
-                                    //     if ( strcmp( FCFS_Slot[j][i][0],"empty"))
-                                    //     {
-                                    //         printf("\n it is not empyt \n");
-                                    //         printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[j][i][0], FCFS_Slot[j][i][1], FCFS_Slot[j][i][2], FCFS_Slot[j][i][3], FCFS_Slot[j][i][4]);
-                                    //     }
-                                    // }
-                                    // end if first conversation is End
+                                    memset(message, 0, sizeof(message));
+                                    n = read(fd[i][0][0], message, sizeof(message));
+                                    if (n <= 0)
+                                        break; // EOF or error
+                                    message[n] = '\0';
+                                    // Handle parent request of getting reil event ID
+                                    if (strcmp("getRealEventId", message) == 0)
+                                    {
+                                        char childRealEventCountStr[5];
+                                        sprintf(childRealEventCountStr, "%d", childRealEventCount);
+                                        strcpy(message, childRealEventCountStr);
+                                        write(fd[i][1][1], message, sizeof(message));
+
+                                        // After sending the real event count, send the real event ID
+                                        for (j = 0; j < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); j++)
+                                        {
+                                            if (strcmp(FCFS_Slot[j][i][0], "empty"))
+                                            {
+                                                printf("\n it is not empyt \n");
+                                                // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[j][i][0], FCFS_Slot[j][i][1], FCFS_Slot[j][i][2], FCFS_Slot[j][i][3], FCFS_Slot[j][i][4]);
+                                                strcpy(message, FCFS_Slot[j][i][4]); // Event ID
+                                                write(fd[i][1][1], message, sizeof(message));
+                                            }
+                                        }
+
+                                        // After printing all the events in the child, send the endRealEventId message
+                                        strcpy(message, "endRealEventId");
+                                        write(fd[i][1][1], message, sizeof(message));
+                                    }
                                     break;
                                 }
 
@@ -677,6 +695,7 @@ int main(int argc, char *argv[])
                                     {
                                         // passed, log it to Calender
                                         addSlot(allEvents[EventPointer], FCFS_Slot, argv[1], startYear, startMonth, startDay);
+                                        childRealEventCount++;
                                     }
                                 }
                                 else if (strcmp("fail", message) == 0)
@@ -727,7 +746,6 @@ int main(int argc, char *argv[])
                         }
                         */
                     }
-
                     else
                     {
                         strcpy(message, "Child Ready\n");
@@ -1145,13 +1163,44 @@ int main(int argc, char *argv[])
                 write(fd[i][0][1], buf, strlen(buf));
             }
 
-            // Print the schedule to file 
+            // Print the schedule to file
             FILE *fpFCFS;
             fpFCFS = fopen("schedule.txt", "w");
 
             fprintf(fpFCFS, "%s\n", "Period: ");
             fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
-            fprintf(fpFCFS, "\n%s\n\n", "***Appointment Schedule***");
+            fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
+
+            for (i = 0; i < userNum; i++)
+            {
+                strcpy(buf, "getRealEventId");
+                write(fd[i][0][1], buf, strlen(buf));
+                // Parent will keep reading until child send "endRealEventId"
+                // First time read will be the number of events child has
+                buf_n = read(fd[i][1][0], buf, 100);
+                buf[buf_n] = '\0';
+
+                fprintf(fpFCFS, "\n  %s, you have %s appointments.\n", name[i], buf);
+
+                fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", "Date", "Start", "End", "Type", "People");
+                fprintf(fpFCFS, "=======================================================================================================\n", name[i], 999);
+
+                while (1)
+                {
+                    buf_n = read(fd[i][1][0], buf, 100);
+                    buf[buf_n] = '\0';
+                    if (strcmp(buf, "endRealEventId") == 0)
+                    {
+                        break;
+                    }
+                    // After getting each event number
+                    fprintf(fpFCFS, "%s\n", buf);
+                    printf("\n=== %s, %s, %s, %s, %s ===\n", allEvents[atoi(buf)][0], allEvents[atoi(buf)][1], allEvents[atoi(buf)][2], allEvents[atoi(buf)][3], allEvents[atoi(buf)][4]);
+                }
+
+                fprintf(fpFCFS, "- End of %s's Schedule -\n", name[i], 999);
+                fprintf(fpFCFS, "=======================================================================================================\n", name[i], 999);
+            }
 
             // Close the file
             fclose(fpFCFS);
