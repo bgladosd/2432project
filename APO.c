@@ -5,8 +5,6 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-
-
 // give string output First letter UP
 char *upFirstLetter(char *str)
 {
@@ -14,6 +12,17 @@ char *upFirstLetter(char *str)
     newStr[0] = toupper(str[0]);
     strcpy(newStr + 1, str + 1);
     return newStr;
+}
+
+// check if string is only space
+int isOnlySpace(char* str) {
+    while (*str) {
+        if (!isspace(*str)) {
+            return 0;
+        }
+        str++;
+    }
+    return 1;
 }
 
 // pull element in the index 0 of command array, then all move forward 1 index, the last will become empty
@@ -990,29 +999,59 @@ int main(int argc, char *argv[])
                                         // Resst message
                                         memset(message, 0, sizeof(message));
                                         int numOfDaysIndex, timeSlotIndex;
-                                        for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
-                                        {
-                                            for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
-                                            {
 
-                                                // Check if the time slot is empty
-                                                if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
+                                        if (schdMode == 1)
+                                        {
+                                            for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(FCFS_Slot) / sizeof(FCFS_Slot[0]); numOfDaysIndex++)
+                                            {
+                                                for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
                                                 {
-                                                    // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
-                                                    if (strcmp(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+
+                                                    // Check if the time slot is empty
+                                                    if (strcmp(FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
                                                     {
-                                                        // Check if duration > 1, and already send to parent
-                                                        continue;
+                                                        // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, FCFS_Slot[numOfDaysIndex][timeSlotIndex][0], FCFS_Slot[numOfDaysIndex][timeSlotIndex][1], FCFS_Slot[numOfDaysIndex][timeSlotIndex][2], FCFS_Slot[numOfDaysIndex][timeSlotIndex][3], FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                        if (strcmp(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+                                                        {
+                                                            // Check if duration > 1, and already send to parent
+                                                            continue;
+                                                        }
+                                                        strcpy(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
+                                                        write(fd[i][1][1], message, sizeof(message));
                                                     }
-                                                    strcpy(message, FCFS_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
-                                                    write(fd[i][1][1], message, sizeof(message));
                                                 }
                                             }
-                                        }
 
-                                        // After printing all the events in the child, send the endRealEventId message
-                                        strcpy(message, "endRealEventId");
-                                        write(fd[i][1][1], message, sizeof(message));
+                                            // After printing all the events in the child, send the endRealEventId message
+                                            strcpy(message, "endRealEventId");
+                                            write(fd[i][1][1], message, sizeof(message));
+                                        }
+                                        else if (schdMode == 2)
+                                        {
+                                            for (numOfDaysIndex = 0; numOfDaysIndex < sizeof(Priority_Slot) / sizeof(Priority_Slot[0]); numOfDaysIndex++)
+                                            {
+                                                for (timeSlotIndex = 0; timeSlotIndex < 5; timeSlotIndex++)
+                                                {
+
+                                                    // Check if the time slot is empty
+                                                    if (strcmp(Priority_Slot[numOfDaysIndex][timeSlotIndex][0], "empty"))
+                                                    {
+                                                        // printf("Child %d: Event %d: %s, %s, %s, %s, %s\n", i, j, Priority_Slot[numOfDaysIndex][timeSlotIndex][0], Priority_Slot[numOfDaysIndex][timeSlotIndex][1], Priority_Slot[numOfDaysIndex][timeSlotIndex][2], Priority_Slot[numOfDaysIndex][timeSlotIndex][3], Priority_Slot[numOfDaysIndex][timeSlotIndex][4]);
+                                                        if (strcmp(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]) == 0)
+                                                        {
+                                                            // Check if duration > 1, and already send to parent
+                                                            continue;
+                                                        }
+                                                        strcpy(message, Priority_Slot[numOfDaysIndex][timeSlotIndex][4]); // Event ID
+                                                        write(fd[i][1][1], message, sizeof(message));
+                                                    }
+                                                }
+                                            }
+
+                                            // After printing all the events in the child, send the endRealEventId message
+                                            strcpy(message, "endRealEventId");
+                                            write(fd[i][1][1], message, sizeof(message));
+                                        }
                                     }
                                     // end if first conversation is End
                                     break;
@@ -1173,8 +1212,6 @@ int main(int argc, char *argv[])
         printf("parent: Reading from child %d: %s \n", i, buf);
     }
     ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
-    int printReportHeader = 1;
-    int printAppenddoc = 0;
     int reportIndex = 0;
     char command[200][15][20];
     int commandIndex = -1;
@@ -1531,11 +1568,6 @@ int main(int argc, char *argv[])
                     strcpy(buf, "printSchd Priority");
                 }
 
-                else
-                {
-                    printf("no such scheduling algorithm");
-                }
-
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
                 buf[buf_n] = '\0';
@@ -1641,8 +1673,10 @@ int main(int argc, char *argv[])
 
             fprintf(fpFCFS, "%s", "Period: ");
             fprintf(fpFCFS, "%s to %s\n", startDayStr, endDayStr);
-
-            fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
+            if (schdMode == 1)
+                fprintf(fpFCFS, "%s\n", "Algorithm used: FCFS:");
+            else if (schdMode == 2)
+                fprintf(fpFCFS, "%s\n", "Algorithm used: Priority:");
             fprintf(fpFCFS, "\n%s\n", "***Appointment Schedule***");
 
             for (i = 0; i < userNum; i++)
@@ -1680,7 +1714,7 @@ int main(int argc, char *argv[])
                             convertEventInfoForPrint(allEvents[allEventInedx], eventInfo);
                             for (parti = 0; parti < userNum; parti++)
                             {
-                                if (strlen(allEvents[allEventInedx][parti]) > 0)
+                                if (strlen(allEvents[allEventInedx][parti]) > 1)
                                 {
                                     if (strcmp(nameinvolved[allEventInedx][parti], name[i]) == 0)
                                         continue;
@@ -1688,8 +1722,7 @@ int main(int argc, char *argv[])
                                     strcat(curEventParticipants, " ");
                                 }
                             }
-                            // if (strlen(strcpy(curEventParticipants, "")))
-                            // printf("Parit: %s\n", nameinvolved[allEventInedx][1]);
+                            if (isOnlySpace(curEventParticipants)) strcpy(curEventParticipants, "-");
                             fprintf(fpFCFS, "%-13s%-8s%-8s%-18s%-20s\n", eventInfo[0], eventInfo[1], eventInfo[2], eventInfo[3], curEventParticipants);
                             break;
                         }
