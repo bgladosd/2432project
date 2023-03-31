@@ -1851,15 +1851,12 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+                fprintf(fpFCFS, "\n");
+                fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
+                fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
+                fprintf(fpFCFS, "=================================================================\n");
             }
-            fprintf(fpFCFS, "\n");
-            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
-            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
-            fprintf(fpFCFS, "=================================================================\n");
-            fprintf(fpFCFS, "\n");
-            fprintf(fpFCFS, "%*s", (int)((50 + strlen(nameWithCap[i])) / 2), "- End of ");
-            fprintf(fpFCFS, "%s's Schedule -\n", nameWithCap[i]);
-            fprintf(fpFCFS, "=================================================================\n");
+
             fprintf(fpFCFS, "\n\n%s\n", "***  Performance ***\n");
             fprintf(fpFCFS, "Total Number of Requests Received: %d\n", eventIndex);
             fprintf(fpFCFS, "Total Number of Requests Accepted: %d\n", eventIndex - rejectedCount);
