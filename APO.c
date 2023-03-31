@@ -146,6 +146,25 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
     // close file
     fclose(ifp);
 }
+// accept string to input command into command array
+int inputStringCommand(char command[200][15][20], int *commandIndex, char stringCommand[50])
+{
+    int i;
+    pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
+    printf("addCommand");
+    (*commandIndex)++;
+    char *token;
+    token = strtok(stringCommand," ");
+    i = 0;
+    while (token != NULL) // read each character in line
+    {
+        strcpy(command[*commandIndex][i], token);
+        // printf("read <----- %s\n",command[commandIndex][i]);
+        printf("%s \n",command[i]); //debug what is input
+        i++;
+        token = strtok(NULL, " ");
+    }
+}
 
 void cloneEvent(char allmyEvents[][5][15], char clone_myEvents[][5][15], int eventCount)
 {
@@ -1260,6 +1279,7 @@ int main(int argc, char *argv[])
         printf("parent: Reading from child %d: %s \n", i, buf);
     }
     ////////////////////////////////////////////Parent start////////////////////////////////////////////////////////////////////////////////////////
+    bool doingAll = false;
     int reportIndex = 0;
     char command[200][15][20];
     int commandIndex = -1;
@@ -1347,7 +1367,7 @@ int main(int argc, char *argv[])
                 strcpy(input, SPECIAL_USER_INPUT);
                 input[strcspn(input, "\n")] = 0;
                 fprintf(fp, "%s\n", input);
-                SPECIAL_CASE=0;
+                SPECIAL_CASE = 0;
             }
             else
             {
@@ -1384,6 +1404,14 @@ int main(int argc, char *argv[])
         {
             inputFileCommand(command, &commandIndex);
         }
+        if (strcmp(command[0][0], "stringCommand") == 0)
+        {
+            char stringCmd[50]="";
+            strcpy(stringCmd,"privateTime paul 20230401 1800 2.0");
+            inputStringCommand(command, &commandIndex,stringCmd);
+        }
+
+
 
         //        printf("Repeat: your command is %s \n", command); // debug
 
@@ -1581,7 +1609,7 @@ int main(int argc, char *argv[])
             //     printf("Reading by parent --> child %d: %s \n", i, buf);
             // }
         }
-       
+
         // Handle printSchd
         else if (strcmp(command[0][0], "printSchd") == 0)
         {
@@ -1610,13 +1638,13 @@ int main(int argc, char *argv[])
                     schdMode = 1;
                     strcpy(buf, "printSchd FCFS");
                     printf("IN SPECIAL HANDLE CASE--------\n");
-                }else
+                }
+                else
                 {
                     printf("no such scheduling algorithms, treating it as FCFS");
                     schdMode = 1;
                     strcpy(buf, "printSchd FCFS");
                 }
-                
 
                 write(fd[i][0][1], buf, strlen(buf));
                 buf_n = read(fd[i][1][0], buf, 100);
@@ -1819,7 +1847,7 @@ int main(int argc, char *argv[])
             // printed one file index of report plus
             reportIndex++;
 
-            printf("[Exported file: %s.txt]\n",reportFileName);
+            printf("[Exported file: %s.txt]\n", reportFileName);
 
             // Handle print rejected list
             FILE *fpReject;
