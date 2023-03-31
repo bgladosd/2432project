@@ -205,7 +205,7 @@ int timeSlotFree(char myEvents[][5][15], int numEvents, const char *date, const 
     }
     return 1;
 }
-
+//, char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15]
 void addEvent(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
     strcpy(myEvents[*eventCount][0], eventType);
@@ -213,8 +213,54 @@ void addEvent(char myEvents[200][5][15], int *eventCount, const char *eventType,
     strcpy(myEvents[*eventCount][2], time);
     strcpy(myEvents[*eventCount][3], duration);
     strcpy(myEvents[*eventCount][4], id);
+    
     (*eventCount)++;
 }
+
+void addEvent_privateTime(char privateTime[50][6][15], int *privateTimeCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+{
+    strcpy(privateTime[*privateTimeCount][0], eventType);
+    strcpy(privateTime[*privateTimeCount][1], date);
+    strcpy(privateTime[*privateTimeCount][2], time);
+    strcpy(privateTime[*privateTimeCount][3], duration);
+    strcpy(privateTime[*privateTimeCount][4], id);
+    
+    (*privateTimeCount)++;
+}
+
+void addEvent_projectMeeting(char projectMeeting[50][6][15], int *projectMeetingCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+{
+    strcpy(projectMeeting[*projectMeetingCount][0], eventType);
+    strcpy(projectMeeting[*projectMeetingCount][1], date);
+    strcpy(projectMeeting[*projectMeetingCount][2], time);
+    strcpy(projectMeeting[*projectMeetingCount][3], duration);
+    strcpy(projectMeeting[*projectMeetingCount][4], id);
+    
+    (*projectMeetingCount)++;
+}
+
+void addEvent_groupStudyCount(char groupStudy[50][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+{
+    strcpy(groupStudyCount[*groupStudyCount][0], eventType);
+    strcpy(groupStudyCount[*groupStudyCount][1], date);
+    strcpy(groupStudyCount[*groupStudyCount][2], time);
+    strcpy(groupStudyCount[*groupStudyCount][3], duration);
+    strcpy(groupStudyCount[*groupStudyCount][4], id);
+    
+    (*groupStudyCount)++;
+}
+
+void addEvent_gathering(char gathering[50][6][15], int *gatheringCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+{
+    strcpy(gathering[*gatheringCount][0], eventType);
+    strcpy(gathering[*gatheringCount][1], date);
+    strcpy(gathering[*gatheringCount][2], time);
+    strcpy(gathering[*gatheringCount][3], duration);
+    strcpy(gathering[*gatheringCount][4], id);
+    
+    (*gatheringCount)++;
+}
+
 // bgladosd alternative of add event
 //  void addEventAlt(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 //  {
@@ -583,6 +629,16 @@ int main(int argc, char *argv[])
     char allEvents[200][5][15] = {{{0}}};
     char clone_allEvents[200][5][15]; // for priority schedualing
     int schdMode = -1; // use for print schd 1 = FCFS / 2 = Priority
+    char privateTime[50][6][15];
+    char projectMeeting[50][6][15];
+    char groupStudy[50][6][15];
+    char gathering[50][6][15];
+
+    int privateTimeCount=0;
+    int projectMeetingCount=0;
+    int groupStudyCount=0;
+    int gatheringCount=0;
+
 
     // get date of begin and end--------------------------------------------------------------
     int i, j, k;
@@ -683,6 +739,7 @@ int main(int argc, char *argv[])
             char rejectID[200][4];
             char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
             char Priority_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
+            
             // myEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id][]
             while (1)
             {
@@ -934,6 +991,13 @@ int main(int argc, char *argv[])
                         else
                         {
                             addEvent(allEvents, &eventCount, command[0], command[1], command[2], command[3], command[4]);
+                            if(strcmp(command[0],"privateTime")==0)addEvent_privateTime(privateTime, &privateTimeCount, command[0], command[1], command[2], command[3], command[4]);
+                            else if(strcmp(command[0],"gathering")==0)addEvent_gathering(gathering, &gatheringCount, command[0], command[1], command[2], command[3], command[4]);
+                            else if(strcmp(command[0],"groupStudy")==0)addEvent_groupStudyCount(groupStudy, &groupStudyCount, command[0], command[1], command[2], command[3], command[4]);
+                            else if(strcmp(command[0],"projectMeeting")==0)addEvent_projectMeeting(projectMeeting, &projectMeetingCount, command[0], command[1], command[2], command[3], command[4]);
+
+
+
                             strcpy(message, "-> [Recorded] \n");
                             write(fd[i][1][1], message, sizeof(message));
                             printf("child print event\n");
@@ -1279,8 +1343,7 @@ int main(int argc, char *argv[])
                 {
                     strcpy(buf, "printSchd Priority");
                     schdMode = 2;
-                    cloneEvent(allEvents,clone_allEvents,atoi(id)-1);
-                    sortEventByPriority(clone_allEvents,atoi(id)-1);
+                    
 
                 }
 
