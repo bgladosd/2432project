@@ -92,10 +92,10 @@ void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex)
 }
 
 // accept batch file to input command into command array
-int inputFileCommand(char command[300][15][20], int *commandIndex)
+int inputFileCommand(char command[500][15][20], int *commandIndex)
 {
     int i, j;
-    char line[300];
+    char line[500];
     char fileName[20];
     int fileLine = 0; // count amount of line loaded
     // retrieve the file name
@@ -113,7 +113,7 @@ int inputFileCommand(char command[300][15][20], int *commandIndex)
     }
     else
     { // open file success
-        while (fgets(line, 300, ifp) != NULL)
+        while (fgets(line, 500, ifp) != NULL)
         { // read every line in file
             fileLine++;
             (*commandIndex)++;                  // store in starting from index 0
@@ -155,7 +155,7 @@ int inputFileCommand(char command[300][15][20], int *commandIndex)
 }
 
 // accept string to input command into command array
-int inputStringCommand(char command[300][15][20], int *commandIndex, char stringCommand[50])
+int inputStringCommand(char command[500][15][20], int *commandIndex, char stringCommand[50])
 {
     int i;
     pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
@@ -207,7 +207,7 @@ int checkName(char command[20], char name[][20], int userNum)
 }
 
 // char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15]
-void addEvent(char myEvents[300][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent(char myEvents[500][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
     strcpy(myEvents[*eventCount][0], eventType);
     strcpy(myEvents[*eventCount][1], date);
@@ -262,7 +262,7 @@ void addEvent_gathering(char gathering[50][6][15], int *gatheringCount, const ch
     (*gatheringCount)++;
 }
 
-void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15], int privateTimeCount, int projectMeetingCount, int groupStudyCount, int gatheringCount, char clone_myEvents[300][5][15])
+void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15], int privateTimeCount, int projectMeetingCount, int groupStudyCount, int gatheringCount, char clone_myEvents[500][5][15])
 {
     int i, j, pos;
     i = 0;
@@ -558,10 +558,10 @@ int main(int argc, char *argv[])
     char nameWithCap[userNum][20];
     // events list for child and Parent
     //  allEvents[idOfEvent][0: Event Type, 1: Date, 2: Time, 3: Duration, 4:id]
-    char allEvents[300][5][15] = {{{0}}};
-    int rejectedList[300] = {0};
+    char allEvents[500][5][15] = {{{0}}};
+    int rejectedList[500] = {0};
     int rejectedCount = 0;
-    char clone_allEvents[300][5][15]; // for priority schedualing
+    char clone_allEvents[500][5][15]; // for priority schedualing
     int schdMode = -1;                // use for print schd 1 = FCFS / 2 = Priority
     char privateTime[50][6][15];
     char projectMeeting[50][6][15];
@@ -681,8 +681,8 @@ int main(int argc, char *argv[])
             int rejectCount = 0;
             int childRealEventCount = 0;
             // Array to store the events that the child participated
-            char FCFS[300][5][15];
-            char rejectID[300][4];
+            char FCFS[500][5][15];
+            char rejectID[500][4];
             char FCFS_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
             char Priority_Slot[getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1][5][5][15];
 
@@ -992,15 +992,15 @@ int main(int argc, char *argv[])
     bool doingAll = false;
     bool doingAllFCFSEnd = false;
     int reportIndex = 0;
-    char command[300][15][20];
+    char command[500][15][20];
     int commandIndex = -1;
     char input[100];
 
     // char allEvents[200][5][15]; moved up make all child also use this
-    char nameinvolved[300][10][20]; // store who involved the event
+    char nameinvolved[500][10][20]; // store who involved the event
     int eventIndex = 0;
     // ID: for reject multiple people events
-    char appointmentID[300][4];
+    char appointmentID[500][4];
     int appointmentID_A = 0;
     int appointmentID_B = 0;
     int appointmentID_C = 0;
