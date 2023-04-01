@@ -9,3 +9,10 @@ endProgram
 
 inputFile demo_data01.dat
 inputFile demo_data02.dat
+
+
+privateTime billy 20230502 1900 3.0
+groupStudy cathy 20230505 1800 4.0 danny emily
+privateTime amada 20230515 2000 3.0
+gathering danny 20230511 1800 5.0 amada billy cathy emily
+groupStudy emily 20230516 2000 3.0 amada billy

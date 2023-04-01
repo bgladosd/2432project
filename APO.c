@@ -1343,7 +1343,7 @@ int main(int argc, char *argv[])
                     {
                         childOkForCurrentEvent[askingChild] = 0;
                         // printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
-                        printf("Parent: %s cannot join. Event %d Fail !\n", name[askingChild], processingEvent + 1);
+                        printf("Parent: %s cannot join. Event %d : %s Fail !\n", name[askingChild], askingEvent + 1, allEvents[askingEvent][0]);
                     }
                 }
 
@@ -1407,7 +1407,6 @@ int main(int argc, char *argv[])
             }
 
             strcat(reportFileName, ".txt");
-            printf(command[0][1]);
             if (doingAll && strcmp(command[0][1], "PRIORITY") == 0)
             {
                 fpFCFS = fopen(reportFileName, "a+");
