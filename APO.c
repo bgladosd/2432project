@@ -228,7 +228,6 @@ void addEvent(char myEvents[500][5][15], int *eventCount, const char *eventType,
 
 void addEvent_privateTime(char privateTime[][6][15], int *privateTimeCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
-    printf("input privateTime \n");
     strcpy(privateTime[*privateTimeCount][0], eventType);
     strcpy(privateTime[*privateTimeCount][1], date);
     strcpy(privateTime[*privateTimeCount][2], time);
@@ -240,7 +239,6 @@ void addEvent_privateTime(char privateTime[][6][15], int *privateTimeCount, cons
 
 void addEvent_projectMeeting(char projectMeeting[][6][15], int *projectMeetingCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
-    printf("input projectMeeting \n");
     strcpy(projectMeeting[*projectMeetingCount][0], eventType);
     strcpy(projectMeeting[*projectMeetingCount][1], date);
     strcpy(projectMeeting[*projectMeetingCount][2], time);
@@ -252,7 +250,6 @@ void addEvent_projectMeeting(char projectMeeting[][6][15], int *projectMeetingCo
 
 void addEvent_groupStudy(char groupStudy[][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
-    printf("input groupStudy \n");
     strcpy(groupStudy[*groupStudyCount][0], eventType);
     strcpy(groupStudy[*groupStudyCount][1], date);
     strcpy(groupStudy[*groupStudyCount][2], time);
@@ -264,7 +261,6 @@ void addEvent_groupStudy(char groupStudy[][6][15], int *groupStudyCount, const c
 
 void addEvent_gathering(char gathering[][6][15], int *gatheringCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
-    printf("input gathering \n");
     strcpy(gathering[*gatheringCount][0], eventType);
     strcpy(gathering[*gatheringCount][1], date);
     strcpy(gathering[*gatheringCount][2], time);
