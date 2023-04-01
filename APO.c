@@ -743,7 +743,8 @@ int main(int argc, char *argv[])
                                 // clear slots before use
                                 setEmptySlots(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
                             }
-                            childRealEventCount = 0 if (schdMode != -1)
+                            childRealEventCount = 0;
+                            if (schdMode != -1)
                             {
                                 int EventPointer = 0;
                                 while (1)
