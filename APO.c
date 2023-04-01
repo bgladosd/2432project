@@ -46,13 +46,19 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
     int usedSlot = 0;
     int i, j, k;
 
-    int holiday=0;
-    if(dayNum>=27)holiday=6;
-    else if(dayNum>=25)holiday=5;
-    else if(dayNum>=20)holiday=4;
-    else if(dayNum>=13)holiday=3;
-    else if(dayNum>=6)holiday=2;
-    else if(dayNum>=0)holiday=1;
+    int holiday = 0;
+    if (dayNum >= 27)
+        holiday = 6;
+    else if (dayNum >= 25)
+        holiday = 5;
+    else if (dayNum >= 20)
+        holiday = 4;
+    else if (dayNum >= 13)
+        holiday = 3;
+    else if (dayNum >= 6)
+        holiday = 2;
+    else if (dayNum >= 0)
+        holiday = 1;
 
     // count used time slot
     for (i = 0; i <= dayNum; i++)
@@ -1509,7 +1515,13 @@ int main(int argc, char *argv[])
                 // printed one file index of report plus
                 reportIndex++;
             }
-            printf("[Exported file: %s]\n", reportFileName);
+            if (doingAll && strcmp(command[0][1], "FCFS") == 0)
+            {
+            }
+            else
+            {
+                printf("[Exported file: %s]\n", reportFileName);
+            }
 
             // Handle print rejected list
             FILE *fpReject;
