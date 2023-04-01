@@ -59,17 +59,16 @@ void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex)
     int i, j;
     if ((*commandIndex) > 0)
     { // index = 0 -> only one element inside
-        // all element move foward 1 index
         for (i = pullIndex; i <= *commandIndex; i++)
         {
             for (j = 0; j < 15; j++)
-            { // copy next element to current element
+            {
                 strcpy(command[i][j], command[i + 1][j]);
             }
         }
     }
 
-    // last element to null // zero element will only run this
+    // last to null // zero element will only run this
     for (j = 0; j < 15; j++)
     {
         strcpy(command[(*commandIndex)][j], "");
@@ -86,15 +85,18 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
     char line[300];
     char fileName[20];
     int fileLine = 0; // count amount of line loaded
-    // retrieve the file name
+    // printf("index: %d\n", *commandIndex);
     strcpy(fileName, command[*commandIndex][1]);
-    // change last character to \0 if it it is \n or \r
     fileName[strcspn(fileName, "\r\n")] = '\0';
+    // printf("index 9: '%d'\n", fileName[9]);
     printf("opening file %s...\n", fileName);
-    // after reading command, pull array
+    // printf("filename length = %d\n", strlen(fileName));
+    //  after reading command, pull array
     pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
-    // open file
+    // printf("index after file pull: %d\n", commandIndex);
+    //  open file
     FILE *ifp = fopen(fileName, "r");
+    // printf("ifp = %d\n",ifp);
     if (ifp == NULL)
     { // open file fail
         printf("Error opening file.\n");
@@ -106,22 +108,23 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
             fileLine++;
             (*commandIndex)++;                  // store in starting from index 0
             line[strcspn(line, "\r\n")] = '\0'; // assign \0, if it is \r\n
-            // split to command
+            // printf("read: %s\n", line);
+            //  split to command
             char *token;
-            // space as delimiter
             token = strtok(line, " ");
             i = 0;
-            while (token != NULL) // read each word in line
+            while (token != NULL) // read each character in line
             {
                 strcpy(command[*commandIndex][i], token);
+                // printf("read <----- %s\n",command[commandIndex][i]);
+                //  printf("%s \n",command[i]); //debug what is input
                 i++;
                 token = strtok(NULL, " ");
             }
             // if file include a command to input the file now opening, delete that line, otherwise will loop
             if ((strcmp(command[*commandIndex][0], "inputFile") == 0) && (strcmp(command[*commandIndex][1], fileName) == 0))
             {
-                printf("command %s, %s is now deleted due to having the same file name as the opening file. \n", *commandIndex, command[*commandIndex][0], command[*commandIndex][1]);
-                // clear the command
+                printf("command[%d]: %s, %s is now deleted due to having the same file name as the opening file. \n", *commandIndex, command[*commandIndex][0], command[*commandIndex][1]);
                 for (j = 0; j < 15; j++)
                 {
                     strcpy(command[*commandIndex][j], "");
@@ -129,13 +132,15 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
                 fileLine--;
                 *commandIndex--;
             }
-            // if a inputFile command inside the file, recursion this function run it first
+            // printf("previous command[%d]: %s, %s\n", (*commandIndex)-1 ,command[(*commandIndex)-1][0], command[(*commandIndex)-1][1]);
+            // printf("loading command[%d]: %s, %s\n", *commandIndex ,command[*commandIndex][0], command[*commandIndex][1]);
             if ((strcmp(command[*commandIndex][0], "inputFile") == 0))
             {
                 inputFileCommand(command, commandIndex);
             }
+
+            // fprintf(file, line);
         }
-        // let user load file success, and how many lines have inputted
         printf("Input file %s finished. Loaded %d line(s).\n", fileName, fileLine);
     }
     // close file
@@ -146,15 +151,15 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
 int inputStringCommand(char command[200][15][20], int *commandIndex, char stringCommand[50])
 {
     int i;
+    //pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
     (*commandIndex)++;
-    // split to command
     char *token;
-    // space as delimiter
     token = strtok(stringCommand, " ");
     i = 0;
-    while (token != NULL) // read each word in line
+    while (token != NULL) // read each character in line
     {
         strcpy(command[*commandIndex][i], token);
+        // printf("%s \n", command[i]); // debug what is input
         i++;
         token = strtok(NULL, " ");
     }
@@ -176,7 +181,6 @@ void capitalizeNames(char name[][20], char nameWithCap[][20], int size)
     }
 }
 
-// retrieve the index of name of name array, if not exist in return -1
 int checkName(char command[20], char name[][20], int userNum)
 {
     int i = 0;
@@ -193,6 +197,7 @@ int checkName(char command[20], char name[][20], int userNum)
     return child_index;
 }
 
+// char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15]
 void addEvent(char myEvents[200][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
     strcpy(myEvents[*eventCount][0], eventType);
@@ -1117,7 +1122,6 @@ int main(int argc, char *argv[])
             inputStringCommand(command, &commandIndex, stringCmd);
             // printf("DEBUG: %d command index index\n", commandIndex);
         }
-        // if appointment is inputted
         else if (strcmp(command[0][0], "privateTime") == 0 || strcmp(command[0][0], "projectMeeting") == 0 || strcmp(command[0][0], "groupStudy") == 0 || strcmp(command[0][0], "gathering") == 0)
         {
             // check data valid or not
@@ -1131,6 +1135,7 @@ int main(int argc, char *argv[])
             }
             // store involved to array
             j = 5;
+
             while (strcmp(command[0][j], "") != 0)
             {
                 child_index = checkName(command[0][1], name, userNum);
@@ -1240,6 +1245,7 @@ int main(int argc, char *argv[])
                         }
                     }
                 }
+                printf("-> [Recorded] \n");
             }
         }
 
