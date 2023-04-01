@@ -28,12 +28,14 @@ int isOnlySpace(char *str)
     return 1;
 }
 // check the date is holiday or not
-bool checkHoliday(char input_date[]){
+bool checkHoliday(char input_date[])
+{
     int i;
-    char holiday[6][9]={"20230501","20230507","20230514","20230521","20230526","20230528"};
-    for(i = 0; i <= 5; i++)
+    char holiday[6][9] = {"20230501", "20230507", "20230514", "20230521", "20230526", "20230528"};
+    for (i = 0; i <= 5; i++)
     {
-        if(strcmp(input_date,holiday[i])==0)return false;
+        if (strcmp(input_date, holiday[i]) == 0)
+            return false;
     }
     return true;
 }
@@ -624,7 +626,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < userNum; i++)
     {
         strcpy(name[i], argv[i + 3]);
-        printf("%s ", name[i]);
+        printf("%s ", upFirstLetter(name[i]));
     }
     printf("]\n");
     capitalizeNames(name, nameWithCap, userNum);
@@ -1188,10 +1190,10 @@ int main(int argc, char *argv[])
                 isValid = 0;
                 printf("Duration %d is not in the range.\n", command[0][4]);
             }
-            if (checkHoliday(command[0][2])==false)
+            if (checkHoliday(command[0][2]) == false)
             {
                 isValid = 0;
-                printf("Date %s is sunday or public holiday. \n",command[0][2]);
+                printf("Date %s is sunday or public holiday. \n", command[0][2]);
             }
 
             if (isValid == 1)
