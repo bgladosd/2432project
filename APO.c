@@ -1033,21 +1033,6 @@ int main(int argc, char *argv[])
             id[4] = '\0';
         }
 
-        if (appointmentID_C < 10)
-        {
-            appointmentID_C++;
-            if (appointmentID_C == 10)
-            {
-                appointmentID_C = 0;
-                appointmentID_B++;
-            }
-            if (appointmentID_B == 10)
-            {
-                appointmentID_B = 0;
-                appointmentID_A++;
-            }
-        }
-
         if (doingAll && doingAllFCFSEnd)
         {
 
@@ -1198,6 +1183,20 @@ int main(int argc, char *argv[])
 
             if (isValid == 1)
             {
+                if (appointmentID_C < 10)
+                {
+                    appointmentID_C++;
+                    if (appointmentID_C == 10)
+                    {
+                        appointmentID_C = 0;
+                        appointmentID_B++;
+                    }
+                    if (appointmentID_B == 10)
+                    {
+                        appointmentID_B = 0;
+                        appointmentID_A++;
+                    }
+                }
                 char idString[4];
                 sprintf(idString, "%d", eventIndex);
                 // (char myEvents[][5][15], int *eventCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
