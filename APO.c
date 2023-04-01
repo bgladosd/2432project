@@ -279,25 +279,25 @@ void combine_eventArray(char privateTime[][6][15], char projectMeeting[][6][15],
 
     while (i < privateTimeCount)
     {
-        printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
-        i++;
+        // printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
+        i++;bb
     }
     i = 0;
     while (i < projectMeetingCount)
     {
-        printf("event %d, %s %s %s %s %s \n", i, projectMeeting[i][0], projectMeeting[i][1], projectMeeting[i][2], projectMeeting[i][3], projectMeeting[i][4]);
+        // printf("event %d, %s %s %s %s %s \n", i, projectMeeting[i][0], projectMeeting[i][1], projectMeeting[i][2], projectMeeting[i][3], projectMeeting[i][4]);
         i++;
     }
     i = 0;
     while (i < groupStudyCount)
     {
-        printf("event %d, %s %s %s %s %s \n", i, groupStudy[i][0], groupStudy[i][1], groupStudy[i][2], groupStudy[i][3], groupStudy[i][4]);
+        // printf("event %d, %s %s %s %s %s \n", i, groupStudy[i][0], groupStudy[i][1], groupStudy[i][2], groupStudy[i][3], groupStudy[i][4]);
         i++;
     }
     i = 0;
     while (i < gatheringCount)
     {
-        printf("event %d, %s %s %s %s %s \n", i, gathering[i][0], gathering[i][1], gathering[i][2], gathering[i][3], gathering[i][4]);
+        // printf("event %d, %s %s %s %s %s \n", i, gathering[i][0], gathering[i][1], gathering[i][2], gathering[i][3], gathering[i][4]);
         i++;
     }
     i = 0;
@@ -1100,14 +1100,11 @@ int main(int argc, char *argv[])
         }
         if (strcmp(command[0][0], "printSchd") == 0 && strcmp(command[0][1], "ALL") == 0)
         {
-
-            printf("comeon getin here\n");
             doingAll = true;
             doingAllFCFSEnd = false;
             char stringCmd[50] = "";
             strcpy(stringCmd, "printSchd FCFS");
             inputStringCommand(command, &commandIndex, stringCmd);
-            printf("%d command index index\n", commandIndex);
         }
         // command: endProgram
         if (strcmp(command[0][0], "endProgram") == 0)
