@@ -280,7 +280,7 @@ void combine_eventArray(char privateTime[][6][15], char projectMeeting[][6][15],
     while (i < privateTimeCount)
     {
         // printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
-        i++;bb
+        i++;
     }
     i = 0;
     while (i < projectMeetingCount)
