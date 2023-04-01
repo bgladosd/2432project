@@ -46,6 +46,14 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
     int usedSlot = 0;
     int i, j, k;
 
+    int holiday=0;
+    if(dayNum>=27)holiday=6;
+    else if(dayNum>=25)holiday=5;
+    else if(dayNum>=20)holiday=4;
+    else if(dayNum>=13)holiday=3;
+    else if(dayNum>=6)holiday=2;
+    else if(dayNum>=0)holiday=1;
+
     // count used time slot
     for (i = 0; i <= dayNum; i++)
     {
@@ -59,7 +67,7 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
     // calculate: (used Slot / total Slot)
     float a, b;
     a = usedSlot;
-    b = (dayNum + 1) * 5;
+    b = (dayNum + 1 - holiday) * 5;
 
     percentage = a / b;
     return percentage;
