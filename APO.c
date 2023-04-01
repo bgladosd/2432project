@@ -277,7 +277,6 @@ void combine_eventArray(char privateTime[][6][15], char projectMeeting[][6][15],
     pos = 0;
     int total = privateTimeCount + projectMeetingCount + groupStudyCount + gatheringCount;
 
-    printf("debug before combine_eventArray\n");
     while (i < privateTimeCount)
     {
         printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
