@@ -44,7 +44,7 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
         }
     }
 
-    //calculate: (used Slot / total Slot)
+    // calculate: (used Slot / total Slot)
     float a, b;
     a = usedSlot;
     b = (dayNum + 1) * 5;
@@ -63,7 +63,7 @@ void pullCommandArray(char command[][15][20], int *commandIndex, int pullIndex)
         for (i = pullIndex; i <= *commandIndex; i++)
         {
             for (j = 0; j < 15; j++)
-            {   // copy next element to current element
+            { // copy next element to current element
                 strcpy(command[i][j], command[i + 1][j]);
             }
         }
@@ -331,7 +331,7 @@ void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][
     // }
 }
 
-//get the difference of start date and last date, start from 0 so need to add 1
+// get the difference of start date and last date, start from 0 so need to add 1
 int getDayNum(char start[], char end[], int startYear, int startMonth, int startDay)
 {
     int today = atoi(start);
@@ -395,7 +395,7 @@ void setEmptySlots(char Slot[][5][5][15], int num_of_day)
     }
 }
 
-//try to put event into timeslot return true or false
+// try to put event into timeslot return true or false
 bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay)
 {
     // printf("DEBUG: ---->Child %d try: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
@@ -409,8 +409,8 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
 
     // matching starting time
     for (k = 0; k <= 4; k++)
-    { 
-        
+    {
+
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
@@ -420,8 +420,8 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
             // printf("debug: check sametimeslot %d\n",dur);
             for (p = 0; p < dur; p++)
             {
-                //if non empty, break and return false
-                // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
+                // if non empty, break and return false
+                //  printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
                 if (strcmp(Slot[dif_of_day][k + p][0], "empty") != 0)
                 {
                     success = 0;
@@ -455,7 +455,7 @@ void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYe
 
     // matching the starting time
     for (k = 0; k <= 4; k++)
-    { 
+    {
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
@@ -469,7 +469,6 @@ void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYe
                 // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
                 for (i = 0; i <= 4; i++)
                     strcpy(Slot[dif_of_day][k + p][i], event[i]);
-                
             }
         }
 
@@ -723,7 +722,7 @@ int main(int argc, char *argv[])
                             strcpy(message, "-> [printEvent done] \n");
                             write(fd[i][1][1], message, sizeof(message));
                         }
-                        
+
                         else if (strcmp(command[0], "printSchd") == 0)
                         {
                             schdMode = -1;
@@ -744,8 +743,7 @@ int main(int argc, char *argv[])
                                 // clear slots before use
                                 setEmptySlots(Priority_Slot, getDayNum(argv[1], argv[2], startYear, startMonth, startDay) + 1);
                             }
-
-                            if (schdMode != -1)
+                            childRealEventCount = 0 if (schdMode != -1)
                             {
                                 int EventPointer = 0;
                                 while (1)
@@ -925,7 +923,7 @@ int main(int argc, char *argv[])
                                     write(fd[i][1][1], message, sizeof(message));
                                     if (childHaveEvent)
                                         EventPointer++;
-                                    
+
                                     // finished one event on parent list,
                                     // start listening
                                 }
@@ -1323,8 +1321,8 @@ int main(int argc, char *argv[])
                     else
                     {
                         childOkForCurrentEvent[askingChild] = 0;
-                        //printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
-                        printf("Parent: %s cannot join. Event %d Fail !\n", name[askingChild], processingEvent+1);
+                        // printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
+                        printf("Parent: %s cannot join. Event %d Fail !\n", name[askingChild], processingEvent + 1);
                     }
                 }
 
@@ -1333,8 +1331,6 @@ int main(int argc, char *argv[])
                 for (askingChild = 0; askingChild < userNum; askingChild++)
                     if (childOkForCurrentEvent[askingChild] == 0)
                         allChildOk = 0;
-                    
-            
 
                 memset(buf, 0, sizeof(buf));
 
