@@ -150,7 +150,7 @@ int inputFileCommand(char command[200][15][20], int *commandIndex)
 int inputStringCommand(char command[200][15][20], int *commandIndex, char stringCommand[50])
 {
     int i;
-    pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
+    //pullCommandArray(command, commandIndex, *commandIndex); // index = -1 here
     printf("addCommand\n");
     (*commandIndex)++;
     char *token;
@@ -1425,17 +1425,7 @@ int main(int argc, char *argv[])
             strcpy(stringCmd, "privateTime paul 20230401 1800 2.0");
             inputStringCommand(command, &commandIndex, stringCmd);
         }
-        if (strcmp(command[0][0], "printSchd") == 0 && strcmp(command[0][1], "ALL") == 0)
-        {
 
-            printf("comeon getin here\n");
-            doingAll = true;
-            doingAllFCFSEnd = false;
-            char stringCmd[50] = "";
-            strcpy(stringCmd, "printSchd FCFS");
-            inputStringCommand(command, &commandIndex, stringCmd);
-            printf("%d command index index\n", commandIndex);
-        }
 
         //        printf("Repeat: your command is %s \n", command); // debug
 
@@ -1456,6 +1446,17 @@ int main(int argc, char *argv[])
         }
         // ----------------new implement
         // parent add event
+        else if (strcmp(command[0][0], "printSchd") == 0 && strcmp(command[0][1], "ALL") == 0)
+        {
+
+            printf("comeon getin here\n");
+            doingAll = true;
+            doingAllFCFSEnd = false;
+            char stringCmd[50] = "";
+            strcpy(stringCmd, "printSchd FCFS");
+            inputStringCommand(command, &commandIndex, stringCmd);
+            printf("%d command index index\n", commandIndex);
+        }
         else if (strcmp(command[0][0], "privateTime") == 0 || strcmp(command[0][0], "projectMeeting") == 0 || strcmp(command[0][0], "groupStudy") == 0 || strcmp(command[0][0], "gathering") == 0)
         {
             // char involved[10][20]; // store who involved the event
@@ -1779,6 +1780,8 @@ int main(int argc, char *argv[])
             if (doingAll && strcmp(command[0][1], "PRIORITY") == 0)
             {
                 fpFCFS = fopen(reportFileName, "a+");
+                fprintf(fpFCFS, "\n");
+                fprintf(fpFCFS, "=================================================================\n");
             }
             else
             {
