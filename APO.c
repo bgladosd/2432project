@@ -34,6 +34,7 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
     int usedSlot = 0;
     int i, j, k;
 
+    // count used time slot
     for (i = 0; i <= dayNum; i++)
     {
         for (j = 0; j < 5; j++)
@@ -43,6 +44,7 @@ float utilizationCal(char slot[][5][5][15], int dayNum)
         }
     }
 
+    //calculate: (used Slot / total Slot)
     float a, b;
     a = usedSlot;
     b = (dayNum + 1) * 5;
@@ -285,6 +287,7 @@ void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][
     i = 0;
 
     // printf("debug combine_eventArray\n");
+    // add event to array by priority so it is sorted
     while (i < privateTimeCount)
     {
         for (j = 0; j < 5; j++)
@@ -331,25 +334,7 @@ void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][
     // }
 }
 
-
-int checkPriority(char event[])
-{
-    if (strcmp(event, "privateTime") == 0)
-    {
-        return 4;
-    }
-    else if (strcmp(event, "projectMeeting") == 0)
-    {
-        return 3;
-    }
-    else if (strcmp(event, "groupStudy") == 0)
-    {
-        return 2;
-    }
-    else
-        return 1;
-}
-
+//get the difference of start date and last date, start from 0 so need to add 1
 int getDayNum(char start[], char end[], int startYear, int startMonth, int startDay)
 {
     int today = atoi(start);
@@ -396,6 +381,7 @@ int getDayNum(char start[], char end[], int startYear, int startMonth, int start
     return num_of_day;
 }
 
+// clear timeSlots by changing slot to empty
 void setEmptySlots(char Slot[][5][5][15], int num_of_day)
 {
     int i, j;
@@ -404,10 +390,15 @@ void setEmptySlots(char Slot[][5][5][15], int num_of_day)
         for (j = 0; j <= 4; j++)
         {
             strcpy(Slot[i][j][0], "empty");
+            strcpy(Slot[i][j][1], "empty");
+            strcpy(Slot[i][j][2], "empty");
+            strcpy(Slot[i][j][3], "empty");
+            strcpy(Slot[i][j][4], "empty");
         }
     }
 }
 
+//try to put event into timeslot return true or false
 bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay)
 {
     // printf("DEBUG: ---->Child %d try: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
@@ -419,20 +410,23 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
     int pos;
     int success = 1;
 
+    // matching starting time
     for (k = 0; k <= 4; k++)
-    { // check timeslots free or not
+    { 
+        
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
             int dur;
             dur = atoi(event[3]);
+            // for duration, check each time slot empty or not
             // printf("debug: check sametimeslot %d\n",dur);
             for (p = 0; p < dur; p++)
             {
+                //if non empty, break and return false
                 // printf("debug: timeslot %d :%d\n",18+k+j,timeSlotsSpace[k+p]);
                 if (strcmp(Slot[dif_of_day][k + p][0], "empty") != 0)
                 {
-                    // timeSlotsSpace[k+p]=checkPriority(myEvents[j][0]);
                     success = 0;
                     // printf("debug Not free: %s %s %s %s %s \n", event[0], event[1], event[2], event[3], event[4]);
                     break;
@@ -452,6 +446,7 @@ bool tryTimeSlot(char event[5][15], char Slot[][5][5][15], char start[], int sta
     }
 }
 
+// add the event into timeslot
 void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYear, int startMonth, int startDay)
 {
     // printf("DEBUG: ---->Child %d add: %s %s %s %s %s \n", getpid() - getppid() - 1, event[0], event[1], event[2], event[3], event[4]);
@@ -461,14 +456,16 @@ void addSlot(char event[5][15], char Slot[][5][5][15], char start[], int startYe
     char time[5][5] = {"1800", "1900", "2000", "2100", "2200"};
     int found = -1;
 
+    // matching the starting time
     for (k = 0; k <= 4; k++)
-    { // check timeslots free or not
+    { 
         // printf("debug: check each timeslot\n");
         if (strcmp(event[2], time[k]) == 0)
         {
             found = 1;
             int dur;
             dur = atoi(event[3]);
+            // for duration, fill each timeSlot
             // printf("debug: check sametimeslot %d\n",dur);
             for (p = 0; p < dur; p++)
             {
@@ -1326,7 +1323,8 @@ int main(int argc, char *argv[])
                     else
                     {
                         childOkForCurrentEvent[askingChild] = 0;
-                        printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
+                        //printf("Parent: Child %d cannot join. Event %d Fail !\n", askingChild, processingEvent);
+                        printf("Parent: %s cannot join. Event %d Fail !\n", name[askingChild], processingEvent+1);
                     }
                 }
 
