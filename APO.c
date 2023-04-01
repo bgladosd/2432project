@@ -218,8 +218,9 @@ void addEvent(char myEvents[500][5][15], int *eventCount, const char *eventType,
     (*eventCount)++;
 }
 
-void addEvent_privateTime(char privateTime[50][6][15], int *privateTimeCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent_privateTime(char privateTime[][6][15], int *privateTimeCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
+    printf("input privateTime \n");
     strcpy(privateTime[*privateTimeCount][0], eventType);
     strcpy(privateTime[*privateTimeCount][1], date);
     strcpy(privateTime[*privateTimeCount][2], time);
@@ -229,8 +230,9 @@ void addEvent_privateTime(char privateTime[50][6][15], int *privateTimeCount, co
     (*privateTimeCount)++;
 }
 
-void addEvent_projectMeeting(char projectMeeting[50][6][15], int *projectMeetingCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent_projectMeeting(char projectMeeting[][6][15], int *projectMeetingCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
+    printf("input projectMeeting \n");
     strcpy(projectMeeting[*projectMeetingCount][0], eventType);
     strcpy(projectMeeting[*projectMeetingCount][1], date);
     strcpy(projectMeeting[*projectMeetingCount][2], time);
@@ -240,8 +242,9 @@ void addEvent_projectMeeting(char projectMeeting[50][6][15], int *projectMeeting
     (*projectMeetingCount)++;
 }
 
-void addEvent_groupStudy(char groupStudy[50][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent_groupStudy(char groupStudy[][6][15], int *groupStudyCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
+    printf("input groupStudy \n");
     strcpy(groupStudy[*groupStudyCount][0], eventType);
     strcpy(groupStudy[*groupStudyCount][1], date);
     strcpy(groupStudy[*groupStudyCount][2], time);
@@ -251,8 +254,9 @@ void addEvent_groupStudy(char groupStudy[50][6][15], int *groupStudyCount, const
     (*groupStudyCount)++;
 }
 
-void addEvent_gathering(char gathering[50][6][15], int *gatheringCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
+void addEvent_gathering(char gathering[][6][15], int *gatheringCount, const char *eventType, const char *date, const char *time, const char *duration, const char *id)
 {
+    printf("input gathering \n");
     strcpy(gathering[*gatheringCount][0], eventType);
     strcpy(gathering[*gatheringCount][1], date);
     strcpy(gathering[*gatheringCount][2], time);
@@ -262,35 +266,35 @@ void addEvent_gathering(char gathering[50][6][15], int *gatheringCount, const ch
     (*gatheringCount)++;
 }
 
-void combine_eventArray(char privateTime[50][6][15], char projectMeeting[50][6][15], char groupStudy[50][6][15], char gathering[50][6][15], int privateTimeCount, int projectMeetingCount, int groupStudyCount, int gatheringCount, char clone_myEvents[500][5][15])
+void combine_eventArray(char privateTime[][6][15], char projectMeeting[][6][15], char groupStudy[][6][15], char gathering[][6][15], int privateTimeCount, int projectMeetingCount, int groupStudyCount, int gatheringCount, char clone_myEvents[500][5][15])
 {
     int i, j, pos;
     i = 0;
     pos = 0;
     int total = privateTimeCount + projectMeetingCount + groupStudyCount + gatheringCount;
 
-    // printf("debug before combine_eventArray\n");
+    printf("debug before combine_eventArray\n");
     while (i < privateTimeCount)
     {
-        // printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
+        printf("event %d, %s %s %s %s %s \n", i, privateTime[i][0], privateTime[i][1], privateTime[i][2], privateTime[i][3], privateTime[i][4]);
         i++;
     }
     i = 0;
     while (i < projectMeetingCount)
     {
-        // printf("event %d, %s %s %s %s %s \n", i, projectMeeting[i][0], projectMeeting[i][1], projectMeeting[i][2], projectMeeting[i][3], projectMeeting[i][4]);
+        printf("event %d, %s %s %s %s %s \n", i, projectMeeting[i][0], projectMeeting[i][1], projectMeeting[i][2], projectMeeting[i][3], projectMeeting[i][4]);
         i++;
     }
     i = 0;
     while (i < groupStudyCount)
     {
-        // printf("event %d, %s %s %s %s %s \n", i, groupStudy[i][0], groupStudy[i][1], groupStudy[i][2], groupStudy[i][3], groupStudy[i][4]);
+        printf("event %d, %s %s %s %s %s \n", i, groupStudy[i][0], groupStudy[i][1], groupStudy[i][2], groupStudy[i][3], groupStudy[i][4]);
         i++;
     }
     i = 0;
     while (i < gatheringCount)
     {
-        // printf("event %d, %s %s %s %s %s \n", i, gathering[i][0], gathering[i][1], gathering[i][2], gathering[i][3], gathering[i][4]);
+        printf("event %d, %s %s %s %s %s \n", i, gathering[i][0], gathering[i][1], gathering[i][2], gathering[i][3], gathering[i][4]);
         i++;
     }
     i = 0;
@@ -563,10 +567,10 @@ int main(int argc, char *argv[])
     int rejectedCount = 0;
     char clone_allEvents[500][5][15]; // for priority schedualing
     int schdMode = -1;                // use for print schd 1 = FCFS / 2 = Priority
-    char privateTime[50][6][15];
-    char projectMeeting[50][6][15];
-    char groupStudy[50][6][15];
-    char gathering[50][6][15];
+    char privateTime[200][6][15];
+    char projectMeeting[200][6][15];
+    char groupStudy[200][6][15];
+    char gathering[200][6][15];
 
     int privateTimeCount = 0;
     int projectMeetingCount = 0;
